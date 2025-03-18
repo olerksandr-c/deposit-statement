@@ -1,0 +1,132 @@
+2025-03-12 20:25:21,288 - __main__ - INFO - ������ �������� �� C:\DEV\LARAVEL\deposit-statement\storage\app\temp_dbf_export_1741803920.json � C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1741803920.dbf
+2025-03-12 20:25:21,288 - __main__ - INFO - ��������� 5 ����� �� JSON
+2025-03-12 20:25:21,288 - __main__ - INFO - ���������: {'1': 1, '2': '11.02.2025', '3': '', '4': '���������� ���������� �����', '5': -3280000, '6': -3280000}
+2025-03-12 20:25:21,288 - __main__ - ERROR - ������ ��� �������� � DBF: 0
+2025-03-12 20:25:21,289 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 121, in export_to_dbf
+    field_def = detect_field_definition(data, i)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 47, in detect_field_definition
+    values = [row[col_index] if col_index < len(row) else '' for row in data[1:]]
+              ~~~^^^^^^^^^^^
+KeyError: 0
+
+2025-03-12 20:33:03,119 - __main__ - INFO - Начало экспорта из C:\DEV\LARAVEL\deposit-statement\storage\app\temp_dbf_export_1741804382.json в C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1741804382.dbf
+2025-03-12 20:33:03,120 - __main__ - INFO - Загружено 5 строк из JSON
+2025-03-12 20:33:03,120 - __main__ - INFO - Заголовки: {'1': 1, '2': '11.02.2025', '3': '', '4': 'Повернення депозитних коштів', '5': -3280000, '6': -3280000}
+2025-03-12 20:33:03,120 - __main__ - ERROR - Ошибка при экспорте в DBF: module 'dbf' has no attribute 'Float'
+2025-03-12 20:33:03,122 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 125, in export_to_dbf
+    field_def = detect_field_definition(data, key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 78, in detect_field_definition
+    return dbf.Float(field_length, max_decimals)
+           ^^^^^^^^^
+AttributeError: module 'dbf' has no attribute 'Float'
+
+2025-03-12 20:35:18,974 - __main__ - INFO - Начало экспорта из C:\DEV\LARAVEL\deposit-statement\storage\app\temp_dbf_export_1741804518.json в C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1741804518.dbf
+2025-03-12 20:35:18,975 - __main__ - INFO - Загружено 5 строк из JSON
+2025-03-12 20:35:18,975 - __main__ - INFO - Заголовки: {'1': 1, '2': '11.02.2025', '3': '', '4': 'Повернення депозитних коштів', '5': -3280000, '6': -3280000}
+2025-03-12 20:35:18,975 - __main__ - INFO - Используется версия dbf: unknown
+2025-03-12 20:35:18,975 - __main__ - INFO - Метод создания таблицы: new_api
+2025-03-12 20:35:18,975 - __main__ - INFO - Поле 1: F_ типа N(10,0)
+2025-03-12 20:35:18,975 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 20 to Char. Используем строковое представление.
+2025-03-12 20:35:18,975 - __main__ - INFO - Поле 2: F_01 типа C(20)
+2025-03-12 20:35:18,975 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 20 to Char. Используем строковое представление.
+2025-03-12 20:35:18,975 - __main__ - INFO - Поле 3: F_02 типа C(20)
+2025-03-12 20:35:18,975 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 41 to Char. Используем строковое представление.
+2025-03-12 20:35:18,975 - __main__ - INFO - Поле 4: F_03 типа C(41)
+2025-03-12 20:35:18,976 - __main__ - INFO - Поле 5: F_04 типа N(10,2)
+2025-03-12 20:35:18,976 - __main__ - INFO - Поле 6: F_05 типа N(10,2)
+2025-03-12 20:35:18,976 - __main__ - INFO - Создание DBF таблицы: C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1741804518.dbf
+2025-03-12 20:35:18,981 - __main__ - ERROR - Ошибка при создании или заполнении DBF таблицы: bad field spec: 'F_'
+2025-03-12 20:35:18,984 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3660, in add_fields
+    if '(' in pieces[0]:
+              ~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 204, in export_to_dbf
+    table = dbf.Table(dbf_path, table_spec)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3376, in __init__
+    self.add_fields(field_specs)
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3671, in add_fields
+    raise FieldSpecError('bad field spec: %r' % field)
+dbf.exceptions.FieldSpecError: bad field spec: 'F_'
+
+2025-03-12 20:35:18,984 - __main__ - ERROR - Ошибка при экспорте в DBF: bad field spec: 'F_'
+2025-03-12 20:35:18,985 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3660, in add_fields
+    if '(' in pieces[0]:
+              ~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 204, in export_to_dbf
+    table = dbf.Table(dbf_path, table_spec)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3376, in __init__
+    self.add_fields(field_specs)
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3671, in add_fields
+    raise FieldSpecError('bad field spec: %r' % field)
+dbf.exceptions.FieldSpecError: bad field spec: 'F_'
+
+2025-03-15 18:26:06,731 - __main__ - INFO - Начало экспорта из C:\DEV\LARAVEL\deposit-statement\storage\app\temp_dbf_export_1742055966.json в C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1742055966.dbf
+2025-03-15 18:26:06,732 - __main__ - INFO - Загружено 5 строк из JSON
+2025-03-15 18:26:06,732 - __main__ - INFO - Заголовки: {'1': 1, '2': '11.02.2025', '3': '', '4': 'Повернення депозитних коштів', '5': -3280000, '6': -3280000}
+2025-03-15 18:26:06,732 - __main__ - INFO - Используется версия dbf: unknown
+2025-03-15 18:26:06,732 - __main__ - INFO - Метод создания таблицы: new_api
+2025-03-15 18:26:06,732 - __main__ - INFO - Поле 1: F_ типа N(10,0)
+2025-03-15 18:26:06,732 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 20 to Char. Используем строковое представление.
+2025-03-15 18:26:06,732 - __main__ - INFO - Поле 2: F_01 типа C(20)
+2025-03-15 18:26:06,733 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 20 to Char. Используем строковое представление.
+2025-03-15 18:26:06,733 - __main__ - INFO - Поле 3: F_02 типа C(20)
+2025-03-15 18:26:06,733 - __main__ - WARNING - Ошибка при создании текстового поля: Unable to automatically coerce 41 to Char. Используем строковое представление.
+2025-03-15 18:26:06,733 - __main__ - INFO - Поле 4: F_03 типа C(41)
+2025-03-15 18:26:06,733 - __main__ - INFO - Поле 5: F_04 типа N(10,2)
+2025-03-15 18:26:06,733 - __main__ - INFO - Поле 6: F_05 типа N(10,2)
+2025-03-15 18:26:06,733 - __main__ - INFO - Создание DBF таблицы: C:\DEV\LARAVEL\deposit-statement\storage\app\exports\bank_statement_1742055966.dbf
+2025-03-15 18:26:06,736 - __main__ - ERROR - Ошибка при создании или заполнении DBF таблицы: bad field spec: 'F_'
+2025-03-15 18:26:06,759 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3660, in add_fields
+    if '(' in pieces[0]:
+              ~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 204, in export_to_dbf
+    table = dbf.Table(dbf_path, table_spec)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3376, in __init__
+    self.add_fields(field_specs)
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3671, in add_fields
+    raise FieldSpecError('bad field spec: %r' % field)
+dbf.exceptions.FieldSpecError: bad field spec: 'F_'
+
+2025-03-15 18:26:06,759 - __main__ - ERROR - Ошибка при экспорте в DBF: bad field spec: 'F_'
+2025-03-15 18:26:06,760 - __main__ - ERROR - Traceback (most recent call last):
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3660, in add_fields
+    if '(' in pieces[0]:
+              ~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\DEV\LARAVEL\deposit-statement\scripts\export_to_dbf.py", line 204, in export_to_dbf
+    table = dbf.Table(dbf_path, table_spec)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3376, in __init__
+    self.add_fields(field_specs)
+  File "C:\Users\Oleksandr\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbf\tables.py", line 3671, in add_fields
+    raise FieldSpecError('bad field spec: %r' % field)
+dbf.exceptions.FieldSpecError: bad field spec: 'F_'
+

@@ -118,13 +118,6 @@ server {
 systemctl restart nginx
 ```
 
-### 9. Запуск ч: ерг та логів
-
-```sh
-php artisan queue:work --daemon
-php artisan pail --timeout=0
-```
-
 ### 10. Завершення встановлення
 
 ```sh

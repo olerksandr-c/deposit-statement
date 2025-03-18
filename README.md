@@ -46,7 +46,7 @@ cd deposit-statement
 
 ```sh
 composer install
-npm install && npm run build
+npm install && npm run dev
 ```
 
 ### 3. Встановлення Python-залежностей

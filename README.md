@@ -5,7 +5,6 @@
 ### Операційна система
 
 - Ubuntu 22.04 / Debian 12 / CentOS 9 / будь-який сумісний Linux-дистрибутив
-- Windows Server 2022 (якщо використовується Windows)
 
 ### Необхідні компоненти
 
@@ -117,13 +116,6 @@ server {
 
 ```sh
 systemctl restart nginx
-```
-
-### 9. Запуск ч: ерг та логів
-
-```sh
-php artisan queue:work --daemon
-php artisan pail --timeout=0
 ```
 
 ### 10. Завершення встановлення

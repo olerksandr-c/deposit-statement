@@ -6,6 +6,7 @@ import json
 import sys
 import os
 import io
+import datetime
 
 #только для локальной разаработки
 os.environ['JAVA_HOME'] = r'C:\Program Files\Java\jdk-23'
@@ -181,6 +182,41 @@ def convert_to_number(value):
     except ValueError:
         return value
 
+def extract_statement_datetime(pdf_path):
+    """
+    Извлекает дату и время формирования выписки напрямую из PDF-файла.
+
+    Args:
+        pdf_path (str): Путь к PDF-файлу
+
+    Returns:
+        str: Полная строка даты и времени формирования выписки
+    """
+    try:
+        # Читаем PDF как текст с помощью PyPDF2
+        import PyPDF2
+
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            full_text = ""
+
+            # Извлекаем текст со всех страниц
+            for page in pdf_reader.pages:
+                full_text += page.extract_text()
+
+        # Ищем строку
+        # с "Виписка сформована:"
+        match = re.search(r'Виписка сформована:\s*(\d{2}\.\d{2}\.\d{4}\s+\d{2}:\d{2}:\d{2})', full_text)
+
+        if match:
+            return match.group(1)
+
+    except ImportError:
+        print("Библиотека PyPDF2 не установлена. Устновите с помощью: pip install PyPDF2", file=sys.stderr)
+    except Exception as e:
+        print(f"Ошибка при извлечении даты и времени: {str(e)}", file=sys.stderr)
+
+    return ""
 def dataframe_to_json(df):
     """
     Преобразует DataFrame в список словарей для JSON с числовыми индексами
@@ -225,8 +261,15 @@ def process_pdf_to_json(pdf_path, output_path):
     # Извлекаем таблицу из PDF
     table_df = extract_table_from_pdf(pdf_path)
 
+    # Извлекаем дату и время формирования выписки
+    statement_datetime = extract_statement_datetime(pdf_path)
+
     # Преобразуем DataFrame в список словарей с числовыми индексами
     tables_data = dataframe_to_json(table_df)
+
+    # Добавляем дату и время формирования выписки в каждую запись
+    for row in tables_data:
+        row[8] = statement_datetime
 
     # Сохраняем в JSON-файл с поддержкой кириллицы
     with open(output_path, "w", encoding="utf-8") as f:
@@ -236,9 +279,7 @@ def process_pdf_to_json(pdf_path, output_path):
 
 # Пример использования
 if __name__ == "__main__":
-    # pdf_path = "deposit_statement.pdf"
-    # output_path = "deposit_statement_data.json"
-
+    # Обработка PDF и сохранение в JSON
     process_pdf_to_json(pdf_path, output_path)
 
     # Выводим содержимое JSON для проверки

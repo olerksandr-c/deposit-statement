@@ -64,14 +64,17 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-100 dark:text-gray-100">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">№ п/п</th>
+                            <th scope="col" class="px-6 py-3">№</th>
                             <th scope="col" class="px-6 py-3">Дата операції</th>
                             <th scope="col" class="px-6 py-3">% ставка</th>
                             <th scope="col" class="px-6 py-3">Операція</th>
                             <th scope="col" class="px-6 py-3">Сума</th>
                             <th scope="col" class="px-6 py-3">Сума в грн.</th>
                             <th scope="col" class="px-6 py-3">Призначення платежу</th>
+                            <th scope="col" class="px-6 py-3">Виписка сформована</th>
                             <th scope="col" class="px-6 py-3">Дії</th>
+
+
                         </tr>
                     </thead>
                     <tbody>
@@ -130,6 +133,14 @@
                                         {{ $row[6] }}
                                     @endif
                                 </td>
+                                <td class="px-6 py-4 text-gray-900 dark:text-white">
+                                    @if ($editedRowIndex === $index)
+                                        <input type="text" wire:model="editedRowData.7"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    @else
+                                        {{ $row[7] }}
+                                    @endif
+                                </td>
 
                                 <td class="px-4 py-2 text-center" style="white-space: nowrap;">
                                     @if ($editedRowIndex === $index)
@@ -156,7 +167,6 @@
         @endif
 
     </div>
-
     <style> </style>
 
 </div>

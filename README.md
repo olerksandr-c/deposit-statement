@@ -52,7 +52,8 @@ npm install && npm run dev
 ### 3. Встановлення Python-залежностей
 
 ```sh
-pip install -r requirements.txt
+
+pip install datetime tabula-py pandas numpy json jpype1 pyPDF2 dbf
 ```
 
 ### 4. Налаштування оточення

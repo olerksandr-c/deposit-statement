@@ -45,4 +45,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function scopeSearchByName($query, $name)
+    {
+        $driver = config('database.default');
+
+        if ($driver === 'pgsql') {
+            return $query->where('name', 'ilike', '%' . $name . '%');
+        } elseif ($driver === 'sqlite') {
+            return $query->whereRaw('name LIKE ? COLLATE NOCASE', ['%' . $name . '%']);
+        } else {
+            return $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($name) . '%']);
+        }
+    }
 }

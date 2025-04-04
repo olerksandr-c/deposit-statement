@@ -6,32 +6,47 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BankStatementExport;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use App\Models\Log;
 
 class BankStatement extends Component
 {
     use WithFileUploads;
-
 
     public $parsedData = []; // Данные таблицы
     public $editedRowIndex = null; // Индекс редактируемой строки
     public $editedRowData = []; // Данные редактируемой строки
     public $dbfExportSuccessMessage = null; // Сообщение об успешном экспорте в DBF
 
-
-
     public $pdfFile;
     public $errorMessage = '';
+    public string|null $toastMessage = null;
+
+    // Константы для путей и файлов
+    private const PDF_STORAGE_PATH = 'pdfs';
+    private const PDF_FILENAME = 'bank-statement.pdf';
+    private const SCRIPTS_DIR = 'scripts';
+    private const EXPORTS_DIR = 'app/exports';
+    private const TABLES_JSON = 'app/tables.json';
 
     protected $rules = [
         'pdfFile' => 'required|mimes:pdf|max:2048', // Файл обязателен, только PDF, макс. 2МБ
     ];
 
-
+    protected $messages = [
+        'editedRowData.*.required' => 'Не може бути порожнім.',
+        'editedRowData.*.numeric' => 'Значення має бути числом.',
+        'editedRowData.*.date' => 'Значення не є датою.',
+        // Добавьте другие кастомные сообщения, если нужно
+    ];
 
     public function mount()
     {
         $this->parsedData = []; // Явно встановлюємо порожній масив
     }
+
+
 
     public function render()
     {
@@ -49,89 +64,183 @@ class BankStatement extends Component
         $this->validateOnly('pdfFile'); // Валидация при выборе файла
     }
 
+    /**
+     * Загрузка и обработка PDF файла
+     */
     public function uploadPdf()
     {
         $this->validate();
 
-
-        // Сохраняем загруженный файл в папку '/pdfs'
-        // $pdfPath = $this->pdfFile->store();
-        $pdfPath = $this->pdfFile->storeAs('pdfs', 'bank-statement.pdf');
-
-        info('pdfPath ' . $pdfPath);
-
-        // Полный путь к файлу
-        $fullPdfPath = storage_path('app' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . $pdfPath);
-        info('fullPdfPath ' . $fullPdfPath);
-
-        // Извлечение таблиц с помощью Tabula
         try {
-            $this->parsedData = $this->extractTablesFromPdf($fullPdfPath);
-            $this->dispatchBrowserEvent('parsed-data-updated'); // Додайте цю подію
+            // Сохраняем загруженный файл
+            $pdfPath = $this->storePdfFile();
+
+            // Извлечение таблиц из PDF
+            $this->parsedData = $this->extractTablesFromPdf($pdfPath);
+            $this->dispatch('parsed-data-updated');
+
+            // Логируем результат
+            info('Parsed Data: ' . json_encode($this->parsedData));
+
+
+            Log::create([
+                'user_id' => 1,  // ID пользователя
+                'log_type' => 'info',  // Тип лога
+                'message' => 'pdf завантажений',  // Сообщение
+                'is_archived' => false,  // Флаг архивирования
+            ]);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->handleException($e, 'Error processing PDF');
             return;
         }
-
-        // Логируем результат
-        info('Parsed Data: ' . json_encode($this->parsedData));
     }
 
-    public function extractTablesFromPdf($pdfPath)
+    /**
+     * Сохранение PDF файла
+     *
+     * @return string Полный путь к сохраненному файлу
+     */
+    protected function storePdfFile()
     {
-        // Путь к Python-скрипту
-        $pythonScript = base_path('scripts' . DIRECTORY_SEPARATOR . 'extract_tables.py');
-        info('Python script path: ' . $pythonScript);
+        // Сохраняем загруженный файл в папку '/pdfs'
+        $relativePath = $this->pdfFile->storeAs(self::PDF_STORAGE_PATH, self::PDF_FILENAME);
+        info('PDF stored at: ' . $relativePath);
 
-        // Путь для сохранения JSON
-        $outputJson = storage_path('app' . DIRECTORY_SEPARATOR . 'tables.json');
-        info('Output JSON path: ' . $outputJson);
+        // Полный путь к файлу
+        $fullPdfPath = storage_path('app' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . $relativePath);
+        info('Full path: ' . $fullPdfPath);
 
-        // Проверка существования Python-скрипта
-        if (!file_exists($pythonScript)) {
-            throw new \Exception("Python-скрипт не найден: {$pythonScript}");
+        return $fullPdfPath;
+    }
+
+    /**
+     * Запуск Python-скрипта с учетом ОС
+     *
+     * @param string $scriptPath Путь к Python-скрипту
+     * @param array $arguments Массив аргументов для скрипта
+     * @param string $description Описание операции для логов
+     * @return array Массив с результатом выполнения [output, returnVar]
+     * @throws \Exception При ошибке выполнения скрипта
+     */
+    protected function executePythonScript($scriptPath, $arguments, $description = 'Выполнение Python-скрипта')
+    {
+        // Определяем путь к Python в зависимости от ОС
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            // Для Windows
+            $pythonPath = 'python';  // Или полный путь, например: 'C:\path\to\venv\Scripts\python.exe'
+
+            // Альтернативный вариант поиска Python на Windows:
+            if (!file_exists($pythonPath)) {
+                $pythonPath = 'py';  // Пробуем стандартный псевдоним Python в Windows
+            }
+        } else {
+            // Для Linux
+            $pythonPath = base_path('venv/bin/python');
+
+            // Проверяем, существует ли venv, если нет - используем системный python3
+            if (!file_exists($pythonPath)) {
+                $pythonPath = 'python3';
+            }
         }
 
-        // Проверка существования PDF-файла
-        if (!file_exists($pdfPath)) {
-            throw new \Exception("PDF-файл не найден: {$pdfPath}");
+        // Проверка существования скрипта
+        if (!file_exists($scriptPath)) {
+            throw new \Exception("Python скрипт не найден: {$scriptPath}");
         }
 
-        // Команда для вызова Python-скрипта
-        $command = "python {$pythonScript} {$pdfPath} {$outputJson}";
-        info('Command: ' . $command);
+        // Формирование команды
+        $command = [escapeshellcmd($pythonPath), escapeshellarg($scriptPath)];
+
+        // Добавление аргументов
+        foreach ($arguments as $arg) {
+            $command[] = escapeshellarg($arg);
+        }
+
+        // Для Windows и Linux разный формат команды
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $commandString = implode(' ', $command);
+        } else {
+            // Для Linux добавляем перенаправление ошибок
+            $commandString = implode(' ', $command) . ' 2>&1';
+        }
+
+        // Логирование для отладки
+        info("Python path: {$pythonPath}");
+        info("{$description} - Command: {$commandString}");
 
         // Выполнение команды
-        exec($command, $output, $returnVar);
+        $output = [];
+        $returnVar = 0;
+        exec($commandString, $output, $returnVar);
 
-        // Преобразование вывода в UTF-8 (если необходимо)
-        $output = array_map(function ($line) {
-            return mb_convert_encoding($line, 'UTF-8', 'UTF-8');
-        }, $output);
-
-        info('Command output: ' . implode("\n", $output));
-        info('Command return code: ' . $returnVar);
-
-        // Проверка результата выполнения команды
+        // Обработка результатов
         if ($returnVar !== 0) {
-            throw new \Exception("Ошибка при выполнении команды: " . implode("\n", $output));
+            $errorMessage = "{$description} - Ошибка выполнения скрипта (код {$returnVar}): " . implode("\n", $output);
+            info($errorMessage);
+            throw new \Exception($errorMessage);
         }
 
+        // Успешное выполнение
+        info("{$description} - Скрипт выполнен успешно. Результат: " . implode("\n", $output));
+
+        return [$output, $returnVar];
+    }
+
+    /**
+     * Извлечение таблиц из PDF файла
+     *
+     * @param string $pdfPath Путь к PDF файлу
+     * @return array Массив извлеченных таблиц
+     * @throws \Exception При ошибке извлечения
+     */
+    public function extractTablesFromPdf($pdfPath)
+    {
+        // Пути к файлам
+        $pythonScript = base_path(self::SCRIPTS_DIR . '/extract_tables.py');
+        $outputJson = storage_path(self::TABLES_JSON);
+
+        // Проверка существования PDF файла
+        if (!file_exists($pdfPath)) {
+            throw new \Exception("PDF файл не найден: {$pdfPath}");
+        }
+
+        // Вызов Python-скрипта через общий метод
+        try {
+            $this->executePythonScript(
+                $pythonScript,
+                [$pdfPath, $outputJson],
+                'Извлечение таблиц из PDF'
+            );
+        } catch (\Exception $e) {
+            throw new \Exception("Ошибка при извлечении таблиц: " . $e->getMessage());
+        }
+
+        return $this->parseJsonTablesData($outputJson);
+    }
+
+    /**
+     * Обработка JSON-данных с таблицами
+     *
+     * @param string $jsonPath Путь к JSON файлу
+     * @return array Обработанные данные таблиц
+     * @throws \Exception При ошибке обработки JSON
+     */
+    protected function parseJsonTablesData($jsonPath)
+    {
         // Проверка существования JSON-файла
-        if (!file_exists($outputJson)) {
-            throw new \Exception("JSON-файл не создан: {$outputJson}");
+        if (!file_exists($jsonPath)) {
+            throw new \Exception("JSON-файл не создан: {$jsonPath}");
         }
 
         // Чтение JSON с таблицами
-        $jsonContent = file_get_contents($outputJson);
+        $jsonContent = file_get_contents($jsonPath);
         if (empty($jsonContent)) {
-            throw new \Exception("JSON-файл пуст: {$outputJson}");
+            throw new \Exception("JSON-файл пуст: {$jsonPath}");
         }
-        //dd($jsonContent);   
+
         // Декодирование JSON
         $tables = json_decode($jsonContent, true);
 
-        //dd($tables);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception("Ошибка при декодировании JSON: " . json_last_error_msg());
         }
@@ -143,42 +252,84 @@ class BankStatement extends Component
         } else {
             throw new \Exception("Ошибка: данные не в ожидаемом формате");
         }
-        info('Tables extracted: ' . json_encode($cleanedTables));
 
-        // dd($cleanedTables);
+        info('Tables extracted: ' . json_encode($cleanedTables));
         return $cleanedTables;
     }
 
+    /**
+     * Экспорт данных в Excel
+     */
     public function exportToExcel()
     {
-        if (empty($this->parsedData)) {
-            session()->flash('error', 'Нет данных для экспорта.');
-            return;
+        if ($this->checkEmptyData('экспорта в Excel')) {
+            // Сообщение об ошибке уже отправляется из checkEmptyData через handleException/notify
+            return null;
         }
-
-        // Логируем данные перед экспортом
-        info('Data for export: ' . json_encode($this->parsedData));
-
-        return Excel::download(new BankStatementExport($this->parsedData), 'bank_statement.xlsx');
+        info('Data for Excel export count: ' . count($this->parsedData));
+        // *** ДОБАВИТЬ (опционально, для уведомления о начале) ***
+        $this->dispatch('notify', message: 'Починається експорт в Excel...', type: 'info');
+        // Уведомление об успехе не сработает тут из-за return download
+        return Excel::download(new BankStatementExport(array_map('array_values', $this->parsedData)), 'bank_statement.xlsx');
     }
 
-    // Начало редактирования строки
+    /**
+     * Начало редактирования строки
+     *
+     * @param int $index Индекс редактируемой строки
+     */
     public function editRow($index)
     {
-
-
         $this->editedRowIndex = $index;
         $this->editedRowData = $this->parsedData[$index];
     }
 
-    // Сохранение изменений
+    /**
+     * Сохранение изменений в строке
+     */
     public function saveRow()
     {
-        $this->parsedData[$this->editedRowIndex] = $this->editedRowData;
-        $this->cancelEdit();
+
+
+        // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+
+        // Определите правила валидации ЗДЕСЬ, для конкретных индексов editedRowData
+        // Замените ИНДЕКС_КОЛОНКИ_СУММЫ_1 и ИНДЕКС_КОЛОНКИ_СУММЫ_2
+        // на реальные числовые индексы ваших колонок с суммами (начиная с 0).
+        // Например, если суммы в 3-й и 4-й колонках, используйте '2' и '3'.
+        $validationRules = [
+            'editedRowData.4' => 'required|numeric', //  обязательная, числовая
+            'editedRowData.5' => 'required|numeric', // - обязательная, числовая
+            'editedRowData.1' => 'required|date',
+
+            // 'editedRowData.0' => 'required|string|max:100', // Пример для текстового поля
+        ];
+
+        try {
+            // Валидируем ТОЛЬКО данные редактируемой строки
+            $this->validate($validationRules);
+
+            // Если валидация прошла успешно, сохраняем данные
+            $this->parsedData[$this->editedRowIndex] = $this->editedRowData;
+            $this->dispatch('notify', message: 'Рядок успішно збережено.', type: 'success');
+
+            $this->cancelEdit(); // Сбрасываем состояние редактирования
+
+        } catch (ValidationException $e) {
+            // Валидация не пройдена. Livewire автоматически обработает ошибки
+            // и сделает их доступными в $errors в Blade.
+            // Вы можете добавить дополнительное логирование или действия здесь, если нужно.
+            info('Validation failed for edited row: ' . json_encode($e->errors()));
+            // Не нужно вызывать $this->cancelEdit(), чтобы пользователь мог исправить ошибки
+            // и поля ввода остались видимыми.
+            // Просто позвольте исключению прервать выполнение метода.
+            throw $e; // Перебрасываем исключение, чтобы Livewire его обработал
+        }
     }
 
-    // Отмена редактирования
+    /**
+     * Отмена редактирования строки
+     */
     public function cancelEdit()
     {
         $this->editedRowIndex = null;
@@ -187,85 +338,163 @@ class BankStatement extends Component
 
     /**
      * Экспорт данных в DBF формат
+     *
+     * @return mixed Ответ для скачивания файла или null при ошибке
      */
     public function exportToDbf()
     {
         $this->dbfExportSuccessMessage = null; // Очистка перед началом экспорта
+        info('Начинаем экспорт в DBF');
 
-        if (empty($this->parsedData)) {
-            session()->flash('error', 'Нет данных для экспорта в DBF.');
-            return;
+        if ($this->checkEmptyData('экспорта в DBF')) {
+            return null;
         }
-        //dd($this->parsedData);
+
         try {
-            // Генерируем временный JSON файл с данными
-            $tempJsonPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp_dbf_export_' . time() . '.json');
-            file_put_contents($tempJsonPath, json_encode($this->parsedData));
+            // Создаем временный JSON файл с данными
+            $tempJsonPath = $this->createTempJsonFile();
 
-            // Проверяем, что JSON-файл создан успешно
-            if (!file_exists($tempJsonPath)) {
-                throw new \Exception("Не удалось создать временный JSON файл");
-            }
+            // Подготавливаем путь для сохранения DBF файла
+            $outputDbfPath = $this->prepareDbfExportPath();
 
-            // Путь для сохранения DBF файла
-            // $outputDbfPath = storage_path('app' . DIRECTORY_SEPARATOR . 'exports' . DIRECTORY_SEPARATOR . 'bank_statement_' . time() . '.dbf');
-            $outputDbfPath = storage_path('app/exports/bank_statement_' . now()->format('Y-m-d') . '.dbf');
-
-            // Создаем директорию для экспорта, если она не существует
-            if (!file_exists(dirname($outputDbfPath))) {
-                mkdir(dirname($outputDbfPath), 0755, true);
-            }
-
-            // Путь к Python-скрипту для экспорта в DBF
-            $pythonScript = base_path('scripts' . DIRECTORY_SEPARATOR . 'export_to_dbf.py');
-
-            // Проверка существования Python-скрипта
-            if (!file_exists($pythonScript)) {
-                throw new \Exception("Python-скрипт не найден: {$pythonScript}");
-            }
-
-            // Команда для вызова Python-скрипта
-            $command = "python {$pythonScript} {$tempJsonPath} {$outputDbfPath}";
-            info('Export to DBF command: ' . $command);
-
-            // Выполнение команды
-            exec($command, $output, $returnVar);
-
-            // Логируем вывод команды
-            info('Export to DBF output: ' . implode("\n", $output));
-            info('Export to DBF return code: ' . $returnVar);
-
-            // Проверка результата выполнения команды
-            if ($returnVar !== 0) {
-                throw new \Exception("Ошибка при экспорте в DBF: " . implode("\n", $output));
-            }
-
-            // Проверяем, что DBF файл создан успешно
-            if (!file_exists($outputDbfPath)) {
-                throw new \Exception("DBF файл не был создан");
-            }
-
+            // Вызываем Python-скрипт для экспорта
+            $this->executeDbfExport($tempJsonPath, $outputDbfPath);
 
             // Удаляем временный JSON файл
-            unlink($tempJsonPath);
-            //$this->dbfExportSuccessMessage = "Експорт в DBF успішно виконано.";
-            //$this->dispatch('dbf-export-success', ['message' => "Експорт в DBF успішно виконано."]);
+            $this->cleanupTempFiles($tempJsonPath);
 
-            session()->flash('success', "Експорт в DBF успішно виконано.");
-            //$this->js("alert('Post saved!')"); 
+            // Уведомляем пользователя об успехе
+            $this->dispatch('notify', message: 'Експорт в DBF успішно виконано. Файл завантажується...', type: 'success');
 
-            // После этого отдаем файл для скачивания
+
+            // Отдаем файл для скачивания
             return response()->download($outputDbfPath);
         } catch (\Exception $e) {
-            session()->flash('error', 'Ошибка при экспорте в DBF: ' . $e->getMessage());
-            info('DBF export error: ' . $e->getMessage());
-
-            // Используем dispatch вместо dispatchBrowserEvent (для Livewire 3)
-            $this->dispatch('dbf-export-failed', [
-                'error' => $e->getMessage()
-            ]);
-
-            return;
+            $this->handleException($e, 'DBF export error'); // handleException отправит уведомление
+            return null;
         }
+    }
+
+    /**
+     * Создание временного JSON файла с данными
+     *
+     * @return string Путь к созданному JSON файлу
+     * @throws \Exception При ошибке создания файла
+     */
+    protected function createTempJsonFile()
+    {
+        $tempJsonPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp_dbf_export_' . time() . '.json');
+        file_put_contents($tempJsonPath, json_encode($this->parsedData));
+        info('Временный JSON файл создан: ' . $tempJsonPath);
+
+        if (!file_exists($tempJsonPath)) {
+            throw new \Exception("Не удалось создать временный JSON файл");
+        }
+
+        return $tempJsonPath;
+    }
+
+    /**
+     * Подготовка пути для экспорта DBF файла
+     *
+     * @return string Путь для сохранения DBF файла
+     * @throws \Exception При ошибке создания директории
+     */
+    protected function prepareDbfExportPath()
+    {
+        $outputDbfPath = storage_path(self::EXPORTS_DIR . '/bank_statement_' . now()->format('Y-m-d') . '.dbf');
+
+        // Создаем директорию для экспорта с правильными правами
+        $exportDir = dirname($outputDbfPath);
+        if (!file_exists($exportDir)) {
+            if (!mkdir($exportDir, 0755, true)) {
+                throw new \Exception("Не удалось создать директорию: {$exportDir}");
+            }
+            // Устанавливаем владельца для веб-сервера (если нужно)
+            @chown($exportDir, 'www-data');
+        }
+
+        return $outputDbfPath;
+    }
+
+    /**
+     * Выполнение экспорта в DBF через Python-скрипт
+     *
+     * @param string $jsonPath Путь к JSON файлу с данными
+     * @param string $dbfPath Путь для сохранения DBF файла
+     * @throws \Exception При ошибке экспорта
+     */
+    protected function executeDbfExport($jsonPath, $dbfPath)
+    {
+        $pythonScript = base_path(self::SCRIPTS_DIR . '/export_to_dbf.py');
+
+        try {
+            $this->executePythonScript(
+                $pythonScript,
+                [$jsonPath, $dbfPath],
+                'Экспорт в DBF'
+            );
+        } catch (\Exception $e) {
+            throw new \Exception("Ошибка при экспорте в DBF: " . $e->getMessage());
+        }
+
+        // Проверяем, что DBF файл создан успешно
+        if (!file_exists($dbfPath)) {
+            throw new \Exception("DBF файл не был создан");
+        }
+    }
+
+    /**
+     * Очистка временных файлов
+     *
+     * @param string $tempJsonPath Путь к временному JSON файлу
+     */
+    protected function cleanupTempFiles($tempJsonPath)
+    {
+        if (file_exists($tempJsonPath)) {
+            unlink($tempJsonPath);
+            info('Временный JSON файл удален: ' . $tempJsonPath);
+        }
+    }
+
+    // Проверка наличия данных для экспорта
+
+    protected function checkEmptyData($operation): bool
+    {
+        if (empty($this->parsedData) || !is_array($this->parsedData)) {
+            $message = "Нет данных для {$operation}. Завантажте та обробіть PDF файл.";
+            // *** ИЗМЕНЕНИЕ ЗДЕСЬ ***
+            $this->dispatch('notify', message: $message, type: 'error');
+            // session()->flash('error', $message); // ЗАМЕНИТЬ
+            info("CheckEmptyData failed for '{$operation}'. Data is empty or not an array.");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Обработка исключений
+     *
+     * @param \Exception $exception Объект исключения
+     * @param string $logPrefix Префикс для сообщения в логе
+     */
+    protected function handleException(\Exception $exception, $logPrefix = 'Error')
+    {
+        $detailedMessage = $exception->getMessage() . " in " . $exception->getFile() . ":" . $exception->getLine();
+        info("{$logPrefix}: {$detailedMessage}");
+
+        // Показываем пользователю сообщение через событие
+        $userMessage = "Виникла помилка ({$logPrefix}): " . $exception->getMessage();
+
+
+
+        $this->dispatch('notify', message: $userMessage, type: 'error');
+    }
+
+    public function resetFile()
+    {
+        $this->reset('pdfFile'); // Сбрасываем только свойство с файлом
+        // Или если нужно сбросить все:
+        // $this->reset();
     }
 }

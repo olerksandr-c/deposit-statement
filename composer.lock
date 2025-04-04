@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "29400ec63cdd8fdcd3f39310b8366db2",
+    "content-hash": "da966d2aa5c133c2a91b44bf96108640",
     "packages": [
         {
             "name": "brick/math",
@@ -1276,6 +1276,67 @@
             "time": "2025-02-03T10:55:03+00:00"
         },
         {
+            "name": "laravel/breeze",
+            "version": "v2.3.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/breeze.git",
+                "reference": "390cbc433cb72fa6050965000b2d56c9ba6fd713"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/breeze/zipball/390cbc433cb72fa6050965000b2d56c9ba6fd713",
+                "reference": "390cbc433cb72fa6050965000b2d56c9ba6fd713",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^11.0|^12.0",
+                "illuminate/filesystem": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "illuminate/validation": "^11.0|^12.0",
+                "php": "^8.2.0",
+                "symfony/console": "^7.0"
+            },
+            "require-dev": {
+                "laravel/framework": "^11.0|^12.0",
+                "orchestra/testbench-core": "^9.0|^10.0",
+                "phpstan/phpstan": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Breeze\\BreezeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Breeze\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Minimal Laravel authentication scaffolding with Blade and Tailwind.",
+            "keywords": [
+                "auth",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/breeze/issues",
+                "source": "https://github.com/laravel/breeze"
+            },
+            "time": "2025-03-06T14:02:32+00:00"
+        },
+        {
             "name": "laravel/framework",
             "version": "v12.1.1",
             "source": {
@@ -2229,16 +2290,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.6.1",
+            "version": "v3.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "0df0a762698176d714e42e2dfed92b6b9e24b8e4"
+                "reference": "8f8914731f5eb43b6bb145d87c8d5a9edfc89313"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/0df0a762698176d714e42e2dfed92b6b9e24b8e4",
-                "reference": "0df0a762698176d714e42e2dfed92b6b9e24b8e4",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/8f8914731f5eb43b6bb145d87c8d5a9edfc89313",
+                "reference": "8f8914731f5eb43b6bb145d87c8d5a9edfc89313",
                 "shasum": ""
             },
             "require": {
@@ -2293,7 +2354,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.6.1"
+                "source": "https://github.com/livewire/livewire/tree/v3.6.2"
             },
             "funding": [
                 {
@@ -2301,7 +2362,79 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-04T21:48:52+00:00"
+            "time": "2025-03-12T20:24:15+00:00"
+        },
+        {
+            "name": "livewire/volt",
+            "version": "v1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/livewire/volt.git",
+                "reference": "94091094aa745c8636f9c7bed1e2da2d2a3f32b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/livewire/volt/zipball/94091094aa745c8636f9c7bed1e2da2d2a3f32b3",
+                "reference": "94091094aa745c8636f9c7bed1e2da2d2a3f32b3",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^10.38.2|^11.0|^12.0",
+                "livewire/livewire": "^3.6.1",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/folio": "^1.1",
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^8.15.0|^9.0|^10.0",
+                "pestphp/pest": "^2.9.5|^3.0",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Livewire\\Volt\\VoltServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "psr-4": {
+                    "Livewire\\Volt\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                },
+                {
+                    "name": "Nuno Maduro",
+                    "email": "nuno@laravel.com"
+                }
+            ],
+            "description": "An elegantly crafted functional API for Laravel Livewire.",
+            "homepage": "https://github.com/livewire/volt",
+            "keywords": [
+                "laravel",
+                "livewire",
+                "volt"
+            ],
+            "support": {
+                "issues": "https://github.com/livewire/volt/issues",
+                "source": "https://github.com/livewire/volt"
+            },
+            "time": "2025-03-05T15:20:55+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -4005,6 +4138,157 @@
                 "source": "https://github.com/smalot/pdfparser/tree/v2.11.0"
             },
             "time": "2024-08-16T06:48:03+00:00"
+        },
+        {
+            "name": "spatie/laravel-activitylog",
+            "version": "4.10.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-activitylog.git",
+                "reference": "466f30f7245fe3a6e328ad5e6812bd43b4bddea5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-activitylog/zipball/466f30f7245fe3a6e328ad5e6812bd43b4bddea5",
+                "reference": "466f30f7245fe3a6e328ad5e6812bd43b4bddea5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/config": "^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "illuminate/database": "^8.69 || ^9.27 || ^10.0 || ^11.0 || ^12.0",
+                "illuminate/support": "^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.6.3"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "orchestra/testbench": "^6.23 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
+                "pestphp/pest": "^1.20 || ^2.0 || ^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Activitylog\\ActivitylogServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Activitylog\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Sebastian De Deyne",
+                    "email": "sebastian@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Tom Witkowski",
+                    "email": "dev.gummibeer@gmail.com",
+                    "homepage": "https://gummibeer.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A very simple activity logger to monitor the users of your website or application",
+            "homepage": "https://github.com/spatie/activitylog",
+            "keywords": [
+                "activity",
+                "laravel",
+                "log",
+                "spatie",
+                "user"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-activitylog/issues",
+                "source": "https://github.com/spatie/laravel-activitylog/tree/4.10.1"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-10T15:38:25+00:00"
+        },
+        {
+            "name": "spatie/laravel-package-tools",
+            "version": "1.92.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-package-tools.git",
+                "reference": "dd46cd0ed74015db28822d88ad2e667f4496a6f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/dd46cd0ed74015db28822d88ad2e667f4496a6f6",
+                "reference": "dd46cd0ed74015db28822d88ad2e667f4496a6f6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^9.28|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.5",
+                "orchestra/testbench": "^7.7|^8.0|^9.0|^10.0",
+                "pestphp/pest": "^1.23|^2.1|^3.1",
+                "phpunit/phpunit": "^9.5.24|^10.5|^11.5",
+                "spatie/pest-plugin-test-time": "^1.1|^2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\LaravelPackageTools\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Tools for creating Laravel packages",
+            "homepage": "https://github.com/spatie/laravel-package-tools",
+            "keywords": [
+                "laravel-package-tools",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-package-tools/issues",
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.92.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-03-27T08:34:10+00:00"
         },
         {
             "name": "spatie/pdf-to-text",
@@ -6610,6 +6894,52 @@
                 "source": "https://github.com/archtechx/enums/tree/v1.1.1"
             },
             "time": "2024-10-29T15:38:32+00:00"
+        },
+        {
+            "name": "caouecs/laravel-lang",
+            "version": "7.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/caouecs/lang.git",
+                "reference": "2cb9932f781415f1669ce27d29e5b86399ab164a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/caouecs/lang/zipball/2cb9932f781415f1669ce27d29e5b86399ab164a",
+                "reference": "2cb9932f781415f1669ce27d29e5b86399ab164a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*"
+            },
+            "suggest": {
+                "andrey-helldar/laravel-lang-publisher": "Easy installation and update of translation files for your project",
+                "arcanedev/laravel-lang": "Translations manager and checker for Laravel 5",
+                "overtrue/laravel-lang": "Command to add languages in your project"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "caouecs",
+                    "email": "caouecs@caouecs.net"
+                }
+            ],
+            "description": "Languages for Laravel",
+            "keywords": [
+                "lang",
+                "languages",
+                "laravel",
+                "lpm"
+            ],
+            "support": {
+                "source": "https://github.com/caouecs/lang/tree/7.0.3"
+            },
+            "abandoned": "https://github.com/Laravel-Lang/lang",
+            "time": "2020-08-23T08:17:21+00:00"
         },
         {
             "name": "composer/class-map-generator",
@@ -10475,12 +10805,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

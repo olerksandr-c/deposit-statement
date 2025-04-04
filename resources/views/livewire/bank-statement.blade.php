@@ -1,37 +1,34 @@
-<div class="container mt-5 min-h-[400px] w-full">
+<div class="container mt-5 px-5 mb-5 mx-auto w-full">
 
-    <!-- Success Alert -->
-    <div>
-        @if (session()->has('success'))
-            <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 3000)" x-show="show" x-transition.opacity.duration.500ms
-                class="fixed top-4 left-1/2 transform -translate-x-1/2 w-96 flex items-center p-3 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 shadow-lg dark:bg-gray-800 dark:text-blue-400 dark:border-blue-600">
-                {{ session('success') }}
-            </div>
-        @endif
-    </div>
 
-    <!-- PDF Upload Form -->
-    <div class="w-full mx-auto max-w-screen-xl pl-[50px]">
+
+    <div class="w-full mx-auto max-w-screen-xl ">
 
         <div>
             <form wire:submit.prevent="uploadPdf" class="mb-4 relative">
-                <div class="mb-4">
-                    <label for="pdfFile"
-                        class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-700">Виберіть PDF
-                        файл</label>
-                    <input type="file" id="pdfFile" wire:model="pdfFile" accept="application/pdf"
-                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400">
+
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="pdfFile">Завантажити файл pdf</label>
+                <input
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    type="file" id="pdfFile" wire:model="pdfFile" accept="application/pdf">
+
+                <div class="mb-6">
+                    <div class="flex items-center gap-3">
+                        {{-- Ошибка валидации PDF файла --}}
+                        @error('pdfFile')
+                            <span class="text-red-600 text-sm dark:text-red-400">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
-                <!-- Buttons Container -->
                 <div class="flex space-x-2">
-                    @if ($pdfFile)
+                    @if ($pdfFile && !$errors->has('pdfFile'))
                         <button type="submit"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center justify-center min-w-[200px]">
-                            <div wire:loading wire:target="uploadPdf">
-                                <svg aria-hidden="true" role="status"
-                                    class="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101"
+                            class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center min-w-[200px] transition-colors duration-200 dark:bg-blue-700 dark:hover:bg-blue-800 dark:focus:ring-blue-900">
+                            <div wire:loading wire:target="uploadPdf" class="mr-2">
+                                <svg aria-hidden="true" class="w-4 h-4 text-white animate-spin" viewBox="0 0 100 101"
                                     fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {{-- SVG path data --}}
                                     <path
                                         d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                                         fill="#E5E7EB" />
@@ -46,11 +43,11 @@
 
                     @if (is_array($parsedData) && count($parsedData) > 0)
                         <button type="button" wire:click="exportToExcel"
-                            class="btn bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                            class="text-white bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 font-medium rounded-lg text-sm px-4 py-2.5 transition-colors duration-200 dark:bg-green-700 dark:hover:bg-green-800">
                             Експорт в Excel
                         </button>
                         <button wire:click="exportToDbf"
-                            class="btn bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                            class="text-white bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 font-medium rounded-lg text-sm px-4 py-2.5 transition-colors duration-200 dark:bg-green-700 dark:hover:bg-green-800">
                             Експорт в DBF
                         </button>
                     @endif
@@ -59,103 +56,199 @@
         </div>
 
         @if (is_array($parsedData) && count($parsedData) > 0)
-            <!-- Data Table -->
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-100 dark:text-gray-100">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200 dark:border-gray-700">
+                <table class="w-full border-collapse border text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">№</th>
-                            <th scope="col" class="px-6 py-3">Дата операції</th>
-                            <th scope="col" class="px-6 py-3">% ставка</th>
-                            <th scope="col" class="px-6 py-3">Операція</th>
-                            <th scope="col" class="px-6 py-3">Сума</th>
-                            <th scope="col" class="px-6 py-3">Сума в грн.</th>
-                            <th scope="col" class="px-6 py-3">Призначення платежу</th>
-                            <th scope="col" class="px-6 py-3">Виписка сформована</th>
-                            <th scope="col" class="px-6 py-3">Дії</th>
-
-
+                            <th scope="col" class="px-6 py-3 font-semibold">№</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Дата операції</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">% ставка</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Операція</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Сума</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Сума в грн.</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Призначення платежу</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Виписка сформована</th>
+                            <th scope="col" class="px-6 py-3 font-semibold">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($parsedData as $index => $row)
                             <tr
-                                class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{ $row[0] }}</td>
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 {{ $index % 2 == 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800' }}">
+                                {{-- Column 0: № (Non-editable) --}}
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap">
+                                    {{ $row[0] ?? '' }} {{-- Добавлено ?? '' для безопасности --}}
+                                </td>
+
+                                {{-- Column 1: Дата операції --}}
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap">
                                     @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.1"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                        <div> {{-- Обертка для инпута и ошибки --}}
+                                            <input type="text" wire:model.defer="editedRowData.1"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.1') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.1')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
                                     @else
-                                        {{ $row[1] }}
+                                        {{ $row[1] ?? '' }}
                                     @endif
                                 </td>
 
-                                <td class="px-6 py-4 font-medium text-gray-900  dark:text-white">
+                                {{-- Column 2: % ставка --}}
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.2"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.2"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.2') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.2')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
                                     @else
-                                        {{ $row[2] }}
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 font-medium text-gray-900  dark:text-white">
-                                    @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.3"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @else
-                                        {{ $row[3] }}
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 font-medium text-gray-900  dark:text-yellow-300">
-
-                                    @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.4"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @else
-                                        {{ $row[4] }}
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 font-medium text-gray-900  dark:text-white">
-                                    @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.5"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @else
-                                        {{ $row[5] }}
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-white">
-                                    @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.6"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @else
-                                        {{ $row[6] }}
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-white">
-                                    @if ($editedRowIndex === $index)
-                                        <input type="text" wire:model="editedRowData.7"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-2 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    @else
-                                        {{ $row[7] }}
+                                        {{ $row[2] ?? '' }}
                                     @endif
                                 </td>
 
-                                <td class="px-4 py-2 text-center" style="white-space: nowrap;">
+                                {{-- Column 3: Операція --}}
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
-                                        <button wire:click="saveRow"
-                                            class="icon-button text-green-500 mx-1 hover:scale-125" title="Save">
-                                            <i class="fa-solid fa-floppy-disk fa-lg"></i>
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.3"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.3') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.3')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @else
+                                        {{ $row[3] ?? '' }}
+                                    @endif
+                                </td>
+
+                                {{-- Column 4: Сума --}}
+                                <td
+                                    class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap text-right">
+                                    @if ($editedRowIndex === $index)
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.4"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.4') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.4')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @else
+                                        {{-- Используем is_numeric для безопасности перед форматированием --}}
+                                        {{ isset($row[4]) && is_numeric($row[4]) ? number_format($row[4], 2, ',', ' ') : $row[4] ?? '' }}
+                                    @endif
+                                </td>
+
+                                {{-- Column 5: Сума в грн. --}}
+                                <td
+                                    class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap text-right">
+                                    @if ($editedRowIndex === $index)
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.5"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.5') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.5')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @else
+                                        {{ isset($row[5]) && is_numeric($row[5]) ? number_format($row[5], 2, ',', ' ') : $row[5] ?? '' }}
+                                    @endif
+                                </td>
+
+                                {{-- Column 6: Призначення платежу --}}
+                                <td class="px-6 py-4 text-gray-900 dark:text-gray-200">
+                                    @if ($editedRowIndex === $index)
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.6"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.6') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.6')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @else
+                                        {{ $row[6] ?? '' }}
+                                    @endif
+                                </td>
+
+                                {{-- Column 7: Виписка сформована --}}
+                                <td class="px-6 py-4 text-gray-900 dark:text-gray-200">
+                                    @if ($editedRowIndex === $index)
+                                        <div>
+                                            <input type="text" wire:model.defer="editedRowData.7"
+                                                {{-- ИЗМЕНЕНО: defer --}}
+                                                class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.7') border-red-500 dark:border-red-400 @enderror">
+                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
+                                            @error('editedRowData.7')
+                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    @else
+                                        {{ $row[7] ?? '' }}
+                                    @endif
+                                </td>
+
+                                {{-- Column 8: Дії --}}
+                                <td class="px-4 py-2 text-center whitespace-nowrap">
+                                    @if ($editedRowIndex === $index)
+                                        <button wire:click="saveRow" wire:loading.attr="disabled" {{-- Блокируем кнопку во время сохранения --}}
+                                            class="inline-flex items-center p-1.5 text-green-500 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 mx-1 hover:scale-125 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title="Save">
+                                            {{-- SVG Save icon --}}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
+                                                fill="currentColor">
+                                                <path
+                                                    d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+                                            </svg>
                                         </button>
-                                        <button wire:click="cancelEdit"
-                                            class="icon-button text-gray-500 mx-1 hover:scale-125" title="Cancel">
-                                            <i class="fa-solid fa-xmark fa-lg"></i>
+                                        <button wire:click="cancelEdit" wire:loading.attr="disabled"
+                                            class="inline-flex items-center p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mx-1 hover:scale-125 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title="Cancel">
+                                            {{-- SVG Cancel icon --}}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                            </svg>
                                         </button>
                                     @else
                                         <button wire:click="editRow({{ $index }})"
-                                            class="icon-button text-blue-500 mx-1 hover:scale-125" title="Edit">
-                                            <i class="fa-solid fa-pen fa-lg"></i>
+                                            class="inline-flex items-center p-1.5 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mx-1 hover:scale-125 transition-transform"
+                                            title="Edit">
+                                            {{-- SVG Edit icon --}}
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path
+                                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                            </svg>
                                         </button>
                                     @endif
                                 </td>
@@ -164,9 +257,10 @@
                     </tbody>
                 </table>
             </div>
-        @endif
 
+        @endif
     </div>
-    <style> </style>
+
+
 
 </div>

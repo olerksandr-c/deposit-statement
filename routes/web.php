@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\BankStatement;
+use App\Livewire\RolePermissionManager;
+use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -9,8 +11,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Ваши восстановленные маршруты
-    // Route::get('/bank', BankStatement::class)->name('bank');
+
+
 
     Route::get('download/export/{filename}', function ($filename) {
         $path = storage_path('app' . DIRECTORY_SEPARATOR . 'exports' . DIRECTORY_SEPARATOR . $filename);
@@ -21,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return abort(404, 'Файл не найден');
     });
+    Route::get('/rp', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
 
     Route::redirect('/', 'bank');
 
@@ -37,8 +43,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(['auth'])
         ->name('profile');
 
-        Route::view('logs', 'logs')
+    Route::view('logs', 'logs')
         ->middleware(['auth', 'verified'])
         ->name('logs');
+
+
+    Route::get('roles-permissions', RolePermissionManager::class)
+        ->middleware(['auth', 'verified'])
+        ->name('role-permission-manager');
 });
+
+
+
 require __DIR__ . '/auth.php';

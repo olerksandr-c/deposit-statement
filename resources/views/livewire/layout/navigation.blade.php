@@ -3,7 +3,6 @@
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 
-
 new class extends Component {
     /**
      * Log the current user out of the application.
@@ -29,7 +28,7 @@ new class extends Component {
                     d="M16 10V22M19 13C19 11.8954 18.1046 11 17 11H15C13.8954 11 13 11.8954 13 13C13 14.1046 13.8954 15 15 15H17C18.1046 15 19 16.1046 19 17C19 18.1046 18.1046 19 17 19H15C13.8954 19 13 19.8954 13 21"
                     stroke="white" stroke-width="2" />
             </svg>
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Депозитна виписка</span>
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Банківська виписка</span>
         </a>
 
         <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
@@ -97,20 +96,38 @@ new class extends Component {
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('logs') }}"
-                        class="{{ request()->routeIs('logs') ? 'block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500' : 'block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent' }}"
-                        @if (class_exists('\Livewire\Features\SupportNavigateAttribute\Navigatable')) wire:navigate @endif
-                        aria-current="{{ request()->routeIs('logs') ? 'page' : 'false' }}">
-                        Логування
-                </li>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+
+
+                @role('administrator')
+                    <li>
+                        <a href="{{ route('logs') }}"
+                            class="{{ request()->routeIs('logs') ? 'block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500' : 'block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent' }}"
+                            @if (class_exists('\Livewire\Features\SupportNavigateAttribute\Navigatable')) wire:navigate @endif
+                            aria-current="{{ request()->routeIs('logs') ? 'page' : 'false' }}">
+                            Логування
+                    </li>
+                @endrole
+
+                @role('administrator')
+                    <li>
+                        <a href="{{ route('role-permission-manager') }}"
+                            class="{{ request()->routeIs('role-permission-manager') ? 'block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500' : 'block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent' }}"
+                            @if (class_exists('\Livewire\Features\SupportNavigateAttribute\Navigatable')) wire:navigate @endif
+                            aria-current="{{ request()->routeIs('role-permission-manager') ? 'page' : 'false' }}">
+                            Ролі та права
+                        </a>
+                    </li>
+                @endrole
+
+
+                <li>
                     <x-nav-link href="/docs/manual.pdf" target="_blank"
-                        class="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">
+                        class='block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent'>
                         Інструкція
                     </x-nav-link>
-                </div>
+
+                </li>
 
 
 

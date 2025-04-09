@@ -7,6 +7,9 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
 
 class LogViewer extends Component
 {
@@ -35,6 +38,16 @@ class LogViewer extends Component
     // Метод для отримання логів з фільтрацією та пагінацією
     public function render()
     {
+
+        $user = Auth::user();
+
+
+        if (!Auth::user()->hasRole('administrator')) {
+            abort(403, 'Доступ заборонено');
+        }
+
+
+
         $logs = Log::query()
             ->when(trim($this->userName) !== '', function ($query) {
                 $query->whereHas('user', fn($q) => $q->searchByName($this->userName));

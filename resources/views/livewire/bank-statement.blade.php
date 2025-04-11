@@ -7,10 +7,14 @@
         <div>
             <form wire:submit.prevent="uploadPdf" class="mb-4 relative">
 
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="pdfFile">Завантажити файл pdf</label>
-                <input
-                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                    type="file" id="pdfFile" wire:model="pdfFile" accept="application/pdf">
+                <div class="mx-auto">
+                    <label for="pdfFile" class="mb-1 block text-sm font-medium text-gray-700">Завантажити файл
+                        pdf</label>
+                    <input id="pdfFile" type="file" id="pdfFile" wire:model="pdfFile" accept="application/pdf"
+                        class=" block w-full text-sm ile:mr-4 file:rounded-md file:border-0 file:bg-blue-500 file:py-2 file:px-4 file:text-sm file:font-semibold
+                        file:text-white hover:file:bg-blue-700 focus:outline-none isabled:pointer-events-none disabled:opacity-60" />
+                </div>
+
 
                 <div class="mb-6">
                     <div class="flex items-center gap-3">

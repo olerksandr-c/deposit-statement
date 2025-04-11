@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+{{-- Додаємо x-data для ініціалізації Alpine та змінної isSidebarOpen --}}
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ isSidebarOpen: true }">
 
 <head>
     <meta charset="utf-8">
@@ -10,10 +11,13 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    {{-- Переконайтесь, що AlpineJS включено у ваш build процес в app.js --}}
+
     <script>
-        // Тема (темна/світла) на основі localStorage або media query
-        if (localStorage.getItem('color-theme') === 'dark' ||
-            (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // Выполняем немедленно для предотвращения мерцания при загрузке
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (localStorage.getItem('darkMode') === null &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -21,17 +25,15 @@
     </script>
 </head>
 
-<body>
-    <div class="antialiased bg-gray-50 dark:bg-gray-900">
-        <div>
-            {{-- Підключення Livewire компонента сайдбару та навбару --}}
-            <livewire:layout.nav-sidebar />
-        </div>
+<body class="bg-gray-50 dark:bg-gray-900">
 
-        {{-- Цей Alpine компонент керує лише відступом основного контенту --}}
-        <main x-data="sidebarManager" x-init="init" class="p-4 h-auto pt-20 transition-all duration-300"
-              :class="{ 'md:ml-20': sidebarCollapsed, 'md:ml-64': !sidebarCollapsed }">
+    <livewire:layout.nav-sidebar />
 
+    {{-- Основний контент --}}
+
+    <main class="p-4 transition-all duration-300 ease-in-out"
+        :class="{ 'sm:ml-64': $store.sidebar.isOpen, 'sm:ml-16': !$store.sidebar.isOpen }">
+        <div class="mt-14">
             @if (isset($header))
                 <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -39,10 +41,9 @@
                     </div>
                 </header>
             @endif
-
             {{ $slot }}
-        </main>
-    </div>
+        </div>
+    </main>
 
     <div x-data="notificationManager" @notify.window="addNotification($event.detail)"
         class="fixed top-5 right-5 z-[100] flex flex-col items-end space-y-3 w-full max-w-xs" role="status"
@@ -67,10 +68,30 @@
                 }">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <svg x-show="notification.type === 'success'" class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <svg x-show="notification.type === 'error'" class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-                        <svg x-show="notification.type === 'info'" class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                        <svg x-show="notification.type === 'warning'" class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.62-.62 1.637-.62 2.257 0l6.087 6.087a1.6 1.6 0 01-.001 2.258l-6.087 6.087a1.6 1.6 0 01-2.257 0L2.17 11.444a1.6 1.6 0 01-.001-2.258L8.257 3.1zM10 14a1 1 0 100-2 1 1 0 000 2zm0-6a1 1 0 110 2H9a1 1 0 110-2h1z" clip-rule="evenodd"></path></svg>
+                        <svg x-show="notification.type === 'success'" class="w-5 h-5 text-green-500" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <svg x-show="notification.type === 'error'" class="w-5 h-5 text-red-500" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <svg x-show="notification.type === 'info'" class="w-5 h-5 text-blue-500" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <svg x-show="notification.type === 'warning'" class="w-5 h-5 text-yellow-500"
+                            fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M8.257 3.099c.62-.62 1.637-.62 2.257 0l6.087 6.087a1.6 1.6 0 01-.001 2.258l-6.087 6.087a1.6 1.6 0 01-2.257 0L2.17 11.444a1.6 1.6 0 01-.001-2.258L8.257 3.1zM10 14a1 1 0 100-2 1 1 0 000 2zm0-6a1 1 0 110 2H9a1 1 0 110-2h1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
                     </div>
                     <div class="ml-3 flex-1 pt-0.5">
                         <p class="text-sm font-medium" x-text="notification.message"></p>
@@ -86,46 +107,34 @@
                             }">
                             <span class="sr-only">Закрити</span>
                             {{-- Іконка закриття (скорочено) --}}
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
                         </button>
                     </div>
                 </div>
             </div>
         </template>
     </div>
-
+    {{-- Ініціалізація Alpine Store для глобального стану сайдбару --}}
     <script>
         document.addEventListener('alpine:init', () => {
-            // 📦 Alpine.js компонент для керування ВІДСТУПОМ основного контенту
-            Alpine.data('sidebarManager', () => ({
-                // Локальний стан для керування класами відступу
-                sidebarCollapsed: false,
+            Alpine.store('sidebar', {
+                isOpen: true, // Початковий стан
 
-                init() {
-                    // Читаємо збережений стан з localStorage при завантаженні
-                    let savedState = localStorage.getItem("sidebarCollapsed");
-                    if (savedState === "true") {
-                        this.sidebarCollapsed = true;
-                    } else {
-                        // Явно встановлюємо false, якщо в localStorage null або "false"
-                        this.sidebarCollapsed = false;
+                toggle() {
+                    this.isOpen = !this.isOpen
+                },
+
+                // Функція для синхронізації з Livewire
+                syncState(isOpen) {
+                    if (this.isOpen !== isOpen) {
+                        this.isOpen = isOpen;
                     }
-
-                    // Немає потреби тут диспатчити 'sidebar-state-changed',
-                    // оскільки ініціалізація відбувається для цього компонента.
-                    // Інші компоненти, якщо їм це потрібно, також можуть читати localStorage.
-
-                    // Слухач для оновлення стану, коли сайдбар змінюється (з Livewire компонента)
-                    window.addEventListener("sidebar-state-updated", (e) => {
-                        // Оновлюємо локальний стан цього Alpine компонента
-                        this.sidebarCollapsed = e.detail.collapsed;
-                        // Доступ до $wire тут НЕ потрібен і неможливий!
-                        // Подія 'sidebar-state-changed' також, ймовірно, не потрібна,
-                        // якщо цей компонент єдиний, хто слухає 'sidebar-state-updated'
-                        // і реагує на зміну `this.sidebarCollapsed`.
-                    });
                 }
-            }));
+            })
 
             // 🔔 Компонент для сповіщень (без змін)
             Alpine.data('notificationManager', () => ({
@@ -133,8 +142,10 @@
                 addNotification(detail) {
                     const id = Date.now() + Math.random();
                     // Покращена обробка вкладених деталей, якщо Livewire надсилає масив
-                    const message = typeof detail === 'string' ? detail : (detail.message ?? detail[0]?.message ?? 'Немає повідомлення');
-                    const type = typeof detail === 'string' ? 'info' : (detail.type ?? detail[0]?.type ?? 'info');
+                    const message = typeof detail === 'string' ? detail : (detail.message ?? detail[0]
+                        ?.message ?? 'Немає повідомлення');
+                    const type = typeof detail === 'string' ? 'info' : (detail.type ?? detail[0]
+                        ?.type ?? 'info');
 
                     const notification = {
                         id,
@@ -158,17 +169,21 @@
                         }
                         // Видаляємо з масиву після завершення анімації
                         setTimeout(() => {
-                             // Перевіряємо ще раз, чи елемент все ще існує перед видаленням
-                             const currentIndex = this.notifications.findIndex(n => n.id === id);
-                             if (currentIndex > -1) {
+                            // Перевіряємо ще раз, чи елемент все ще існує перед видаленням
+                            const currentIndex = this.notifications.findIndex(n => n.id === id);
+                            if (currentIndex > -1) {
                                 this.notifications.splice(currentIndex, 1);
-                             }
+                            }
                         }, 300); // Час має відповідати тривалості анімації x-transition:leave
                     }
                 }
             }));
-        });
+
+
+        })
     </script>
 
+
 </body>
+
 </html>

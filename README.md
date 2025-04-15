@@ -19,6 +19,7 @@
   - `tokenizer`
   - `xml`
   - `zip`
+  - `ldap`
 - **Composer** (остання версія)
 - **MySQL 8.0+** / **PostgreSQL 14+**
 - **Redis** (якщо використовується кешування)

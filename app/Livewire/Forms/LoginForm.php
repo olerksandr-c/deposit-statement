@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
+
+use App\Models\Log;
 use App\Models\User; // Добавить импорт модели User
 use LdapRecord\Auth\BindException; // Для отлова ошибок аутентификации LDAP
 use LdapRecord\ConnectionException; // Для отлова ошибок соединения с LDAP
@@ -33,6 +35,7 @@ class LoginForm extends Form
      */
     public function authenticate(): void
     {
+
         $this->ensureIsNotRateLimited();
 
         // --- Попытка 1: Аутентификация через LDAP ---
@@ -45,6 +48,13 @@ class LoginForm extends Form
                 $ldapAuthenticated = true;
                 // Успешная аутентификация через LDAP.
                 // LdapRecord автоматически синхронизирует пользователя в БД (если настроено).
+                $user = Auth::user();
+                Log::create([
+                    'user_id' => $user?->id,  // ID пользователя
+                    'log_type' => 'info',  // Тип лога
+                    'message' => "LDAP-користувач {$this->email} зайшов",  // Сообщение
+                    'is_archived' => false,  // Флаг архивирования
+                ]);
             }
         } catch (BindException $e) {
             // Ошибка привязки LDAP (например, неверные учетные данные).
@@ -57,6 +67,14 @@ class LoginForm extends Form
             // Лучше сообщить пользователю о проблеме с LDAP.
             RateLimiter::hit($this->throttleKey());
             info("LDAP connection failed: " . $e->getMessage());
+
+            Log::create([
+                'user_id' => $user?->id,  // ID пользователя
+                'log_type' => 'error',  // Тип лога
+                'message' => "LDAP connection failed: " . $e->getMessage(),  // Сообщение
+                'is_archived' => false,  // Флаг архивирования
+            ]);
+
             throw ValidationException::withMessages([
                 'form.email' => __('auth.ldap_error', ['message' => $e->getMessage()]), // Создайте этот ключ в файлах перевода
                  // Или более общее сообщение: 'form.email' => __('auth.failed'),
@@ -80,12 +98,26 @@ class LoginForm extends Form
             // Вручную логиним пользователя.
             Auth::login($user, $this->remember);
             RateLimiter::clear($this->throttleKey());
+            $user = Auth::user();
+            Log::create([
+                'user_id' => $user?->id,  // ID пользователя
+                'log_type' => 'info',  // Тип лога
+                'message' => "Локальниу користувач {$this->email} зайшов",  // Сообщение
+                'is_archived' => false,  // Флаг архивирования
+            ]);
             return;
         }
 
         // --- Если обе попытки не удались ---
         RateLimiter::hit($this->throttleKey());
         info("Authentication failed for {$this->email} via both LDAP and Database."); // Логируем неудачу
+
+        Log::create([
+            'user_id' => $user?->id,  // ID пользователя
+            'log_type' => 'error',  // Тип лога
+            'message' => "Authentication failed for {$this->email} via both LDAP and Database.",  // Сообщение
+            'is_archived' => false,  // Флаг архивирования
+        ]);
         throw ValidationException::withMessages([
             // Используем 'form.email', так как поле ввода связано с $this->email
             'form.email' => __('auth.failed'),

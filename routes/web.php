@@ -7,12 +7,6 @@ use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Существующие маршруты Breeze
-    // Route::get('/dashboard', function () {
-    //     return view('dashboard');
-    // })->name('dashboard');
-
-
 
 
     Route::get('download/export/{filename}', function ($filename) {
@@ -24,9 +18,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return abort(404, 'Файл не найден');
     });
-    // Route::get('/dashboard', function () {
-    //     return view('dashboard');
-    // })->name('dashboard');
 
 
     Route::redirect('/', 'bank');
@@ -35,11 +26,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('bank', 'deposit-statement')
         ->middleware(['auth', 'verified'])
         ->name('bank');
-
-    // Route::view('dashboard', 'dashboard')
-    //     ->middleware(['auth', 'verified'])
-    //     ->name('dashboard');
-
 
     Route::view('profile', 'profile')
         ->middleware(['auth'])
@@ -53,8 +39,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('roles-permissions', RolePermissionManager::class)
         ->middleware(['auth', 'verified'])
         ->name('role-permission-manager');
-
-// //для можливого пошуку в ldap
-//     Route::get('/ldap', [LdapController::class, 'index']);
-//     require __DIR__ . '/auth.php';
 });
+
+require __DIR__ . '/auth.php';

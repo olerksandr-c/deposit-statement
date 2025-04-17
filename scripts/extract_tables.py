@@ -283,7 +283,7 @@ if __name__ == "__main__":
     process_pdf_to_json(pdf_path, output_path)
 
     # Выводим содержимое JSON для проверки
-    print("\nСодержимое извлеченных данных:")
+    # print("\nСодержимое извлеченных данных:")
     with open(output_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-        print(json.dumps(data, indent=2, ensure_ascii=False))
+        # print(json.dumps(data, indent=2, ensure_ascii=False))

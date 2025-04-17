@@ -9,6 +9,7 @@ use App\Exports\BankStatementExport;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\Log;
+use Illuminate\Support\Facades\Auth;
 
 class BankStatement extends Component
 {
@@ -32,6 +33,8 @@ class BankStatement extends Component
 
     public $title = 'Депозитна виписка'; // Значение по умолчанию
 
+
+
     protected $rules = [
         'pdfFile' => 'required|mimes:pdf|max:2048', // Файл обязателен, только PDF, макс. 2МБ
     ];
@@ -53,11 +56,11 @@ class BankStatement extends Component
 
     public function render()
     {
-        info('Rendering component with parsedData: ' . json_encode([
-            'empty' => empty($this->parsedData),
-            'count' => count($this->parsedData),
-            'is_array' => is_array($this->parsedData),
-        ]));
+        // info('Rendering component with parsedData: ' . json_encode([
+        //     'empty' => empty($this->parsedData),
+        //     'count' => count($this->parsedData),
+        //     'is_array' => is_array($this->parsedData),
+        // ]));
 
         return view('livewire.bank-statement');
     }
@@ -72,6 +75,7 @@ class BankStatement extends Component
      */
     public function uploadPdf()
     {
+
         $this->validate();
 
         try {
@@ -83,15 +87,9 @@ class BankStatement extends Component
             $this->dispatch('parsed-data-updated');
 
             // Логируем результат
-            info('Parsed Data: ' . json_encode($this->parsedData));
+            // info('Parsed Data: ' . json_encode($this->parsedData));
 
 
-            Log::create([
-                'user_id' => 1,  // ID пользователя
-                'log_type' => 'info',  // Тип лога
-                'message' => 'pdf завантажений',  // Сообщение
-                'is_archived' => false,  // Флаг архивирования
-            ]);
         } catch (\Exception $e) {
             $this->handleException($e, 'Error processing PDF');
             return;
@@ -107,11 +105,11 @@ class BankStatement extends Component
     {
         // Сохраняем загруженный файл в папку '/pdfs'
         $relativePath = $this->pdfFile->storeAs(self::PDF_STORAGE_PATH, self::PDF_FILENAME);
-        info('PDF stored at: ' . $relativePath);
+        // info('PDF stored at: ' . $relativePath);
 
         // Полный путь к файлу
         $fullPdfPath = storage_path('app' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . $relativePath);
-        info('Full path: ' . $fullPdfPath);
+        // info('Full path: ' . $fullPdfPath);
 
         return $fullPdfPath;
     }
@@ -168,8 +166,8 @@ class BankStatement extends Component
         }
 
         // Логирование для отладки
-        info("Python path: {$pythonPath}");
-        info("{$description} - Command: {$commandString}");
+        // info("Python path: {$pythonPath}");
+        // info("{$description} - Command: {$commandString}");
 
         // Выполнение команды
         $output = [];
@@ -184,7 +182,7 @@ class BankStatement extends Component
         }
 
         // Успешное выполнение
-        info("{$description} - Скрипт выполнен успешно. Результат: " . implode("\n", $output));
+        // info("{$description} - Скрипт выполнен успешно. Результат: " . implode("\n", $output));
 
         return [$output, $returnVar];
     }
@@ -256,7 +254,7 @@ class BankStatement extends Component
             throw new \Exception("Ошибка: данные не в ожидаемом формате");
         }
 
-        info('Tables extracted: ' . json_encode($cleanedTables));
+        // info('Tables extracted: ' . json_encode($cleanedTables));
         return $cleanedTables;
     }
 
@@ -269,7 +267,7 @@ class BankStatement extends Component
             // Сообщение об ошибке уже отправляется из checkEmptyData через handleException/notify
             return null;
         }
-        info('Data for Excel export count: ' . count($this->parsedData));
+        // info('Data for Excel export count: ' . count($this->parsedData));
         // *** ДОБАВИТЬ (опционально, для уведомления о начале) ***
         $this->dispatch('notify', message: 'Починається експорт в Excel...', type: 'info');
 
@@ -348,7 +346,7 @@ class BankStatement extends Component
     public function exportToDbf()
     {
         $this->dbfExportSuccessMessage = null; // Очистка перед началом экспорта
-        info('Начинаем экспорт в DBF');
+        // info('Начинаем экспорт в DBF');
 
         if ($this->checkEmptyData('экспорта в DBF')) {
             return null;
@@ -370,6 +368,15 @@ class BankStatement extends Component
             // Уведомляем пользователя об успехе
             $this->dispatch('notify', message: 'Експорт в DBF успішно виконано. Файл завантажується...', type: 'success');
 
+            $user = Auth::user();
+
+            Log::create([
+                'user_id' => $user?->id,  // ID пользователя
+                'log_type' => 'info',  // Тип лога
+                'message' => 'Виконано експорт dbf',  // Сообщение
+                'is_archived' => false,  // Флаг архивирования
+            ]);
+
 
             // Отдаем файл для скачивания
             return response()->download($outputDbfPath);
@@ -389,7 +396,7 @@ class BankStatement extends Component
     {
         $tempJsonPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp_dbf_export_' . time() . '.json');
         file_put_contents($tempJsonPath, json_encode($this->parsedData));
-        info('Временный JSON файл создан: ' . $tempJsonPath);
+        // info('Временный JSON файл создан: ' . $tempJsonPath);
 
         if (!file_exists($tempJsonPath)) {
             throw new \Exception("Не удалось создать временный JSON файл");
@@ -457,7 +464,7 @@ class BankStatement extends Component
     {
         if (file_exists($tempJsonPath)) {
             unlink($tempJsonPath);
-            info('Временный JSON файл удален: ' . $tempJsonPath);
+            // info('Временный JSON файл удален: ' . $tempJsonPath);
         }
     }
 
@@ -467,9 +474,9 @@ class BankStatement extends Component
     {
         if (empty($this->parsedData) || !is_array($this->parsedData)) {
             $message = "Нет данных для {$operation}. Завантажте та обробіть PDF файл.";
-            // *** ИЗМЕНЕНИЕ ЗДЕСЬ ***
+
             $this->dispatch('notify', message: $message, type: 'error');
-            // session()->flash('error', $message); // ЗАМЕНИТЬ
+
             info("CheckEmptyData failed for '{$operation}'. Data is empty or not an array.");
             return true;
         }

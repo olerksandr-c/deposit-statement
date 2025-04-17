@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Actions\Logout;
 use Livewire\Component;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -79,6 +80,8 @@ class UsersManagement extends Component
         $this->selectedUser = null;
         $this->effectivePermissions = [];
     }
+
+
 
     public function render()
     {

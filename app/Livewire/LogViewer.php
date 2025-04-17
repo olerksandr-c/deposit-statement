@@ -9,12 +9,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-
+use Maatwebsite\Excel\Concerns\WithTitle;
 
 class LogViewer extends Component
 {
     use WithPagination;
 
+    public $title = 'Логування';
     public $userName = '';
     public $perPage = 10;  // Кількість записів на сторінці
     public $dateFilter = 'all'; // За замовчуванням: показати всі записи
@@ -74,7 +75,10 @@ class LogViewer extends Component
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
-        return view('livewire.log-viewer', compact('logs'));
+            return view('livewire.log-viewer', compact('logs'))
+            ->layout('layouts.app', [
+                'title' => $this->title // Передаём title в шаблон
+            ]);
     }
     // Метод для зміни фільтру за датою
     public function setDateFilter($filter)

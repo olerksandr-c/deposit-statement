@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'users', // Основной провайдер - LDAP с fallback для поиска
         ],
     ],
 
@@ -59,16 +59,73 @@ return [
     |
     */
 
+    // 'providers' => [
+    //     'users' => [
+    //         'driver' => 'eloquent',
+    //         'model' => env('AUTH_MODEL', App\Models\User::class),
+    //     ],
+
+
+
+    // 'users' => [
+    //     'driver' => 'database',
+    //     'table' => 'users',
+    // ],
+
+    // 'providers' => [
+    //     // ...
+
+    //     'users' => [
+    //         'driver' => 'ldap',
+    //         'model' => LdapRecord\Models\ActiveDirectory\User::class,
+    //         'rules' => [],
+    //         'scopes' => [],
+    //         'database' => [
+    //             'model' => App\Models\User::class,
+    //             'sync_passwords' => false,
+    //             'sync_attributes' => [
+    //                 'name' => 'cn',
+    //                 // 'username' => 'mail',
+    //                 'email' => 'mail',
+    //             ],
+
+    //         ],
+    //     ],
+    // ],
+
     'providers' => [
+        // --- Провайдер LDAP (основной) ---
+        // Он будет использоваться по умолчанию гардом 'web'.
+        // LdapRecord будет пытаться аутентифицировать через LDAP.
+        // Настройки 'database' здесь важны для синхронизации и fallback *поиска* пользователя.
         'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'driver' => 'ldap',
+            'model' => LdapRecord\Models\ActiveDirectory\User::class, // Убедитесь, что это правильная модель для вашего LDAP (AD, OpenLDAP и т.д.)
+            'rules' => [], // Добавьте правила LDAP-аутентификации здесь, если нужно
+            'scopes' => [], // Добавьте LDAP-скоупы здесь, если нужно
+            'database' => [
+                'model' => App\Models\User::class, // Ваша Eloquent модель пользователя
+                'sync_passwords' => false, // Никогда не синхронизируйте пароли из LDAP!
+                'sync_attributes' => [
+                    'name' => 'cn',          // Атрибут LDAP для имени пользователя в БД
+                    'email' => 'mail',       // Атрибут LDAP для email пользователя в БД
+                    // 'guid' => 'objectguid', // Рекомендуется для надежной связи LDAP и БД
+                ],
+                // Опционально: Настройка fallback для поиска пользователя в БД, если он
+                // аутентифицировался по LDAP, но LdapRecord не нашел его стандартным поиском.
+                // 'fallback' => [
+                //     'username' => 'email', // Поле в БД для поиска по введенному логину
+                //     'password' => 'password', // Поле пароля в БД (НЕ используется для fallback аутентификации)
+                // ],
+            ],
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // --- Провайдер Eloquent (для ручной проверки локальной БД) ---
+        // Назовем его 'db_users', чтобы не было конфликта имен.
+        'db_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
     ],
 
     /*
@@ -90,14 +147,30 @@ return [
     |
     */
 
+    // 'passwords' => [
+    //     'users' => [
+    //         'provider' => 'users',
+    //         'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+    //         'expire' => 60,
+    //         'throttle' => 60,
+    //     ],
+    // ],
+
     'passwords' => [
         'users' => [
-            'provider' => 'users',
+            // Важно: Провайдер для сброса пароля должен указывать на Eloquent модель,
+            // так как сброс пароля обычно происходит для локальных учетных записей.
+            // Если 'users' - это ваш LDAP провайдер, создайте отдельный брокер
+            // или убедитесь, что 'users' провайдер правильно настроен для поиска
+            // пользователя в БД для сброса. Проще использовать 'db_users'.
+            'provider' => 'db_users', // Используем провайдер для локальной БД
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],
     ],
+
+    'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
     /*
     |--------------------------------------------------------------------------

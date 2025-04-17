@@ -1,3 +1,5 @@
+@section('title', 'Логування')
+
 <div class="container mt-5 px-5 mb-5 mx-auto w-full sm:rounded-lg">
     <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
         <!-- Фільтр по датам -->

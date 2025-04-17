@@ -1,24 +1,28 @@
+@section('title', 'Депозитна виписка')
 <div class="container mt-5 px-5 mb-5 mx-auto w-full">
-
-
-
-    <div class="w-full mx-auto max-w-screen-xl ">
-
+    <div class="w-full mx-auto max-w-screen-xl">
         <div>
             <form wire:submit.prevent="uploadPdf" class="mb-4 relative">
 
                 <div class="mx-auto">
                     <label for="pdfFile" class="mb-1 block text-sm font-medium text-gray-700">Завантажити файл
                         pdf</label>
-                    <input id="pdfFile" type="file" id="pdfFile" wire:model="pdfFile" accept="application/pdf"
-                        class=" block w-full text-sm ile:mr-4 file:rounded-md file:border-0 file:bg-blue-500 file:py-2 file:px-4 file:text-sm file:font-semibold
-                        file:text-white hover:file:bg-blue-700 focus:outline-none isabled:pointer-events-none disabled:opacity-60" />
+                    <input id="pdfFile" type="file" wire:model="pdfFile" accept="application/pdf"
+                        class="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-blue-500 file:py-2 file:px-4 file:text-sm file:font-semibold
+                        file:text-white hover:file:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60" />
                 </div>
+
+
+                {{-- @if ($pdfFile)
+                    <div class="mt-2 text-sm text-gray-600">
+                        Вибраний файл: {{ $pdfFile->getClientOriginalName() }} ({{ round($pdfFile->getSize() / 1024, 2) }} KB)
+                    </div>
+                @endif --}}
+
 
 
                 <div class="mb-6">
                     <div class="flex items-center gap-3">
-                        {{-- Ошибка валидации PDF файла --}}
                         @error('pdfFile')
                             <span class="text-red-600 text-sm dark:text-red-400">{{ $message }}</span>
                         @enderror
@@ -32,7 +36,6 @@
                             <div wire:loading wire:target="uploadPdf" class="mr-2">
                                 <svg aria-hidden="true" class="w-4 h-4 text-white animate-spin" viewBox="0 0 100 101"
                                     fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    {{-- SVG path data --}}
                                     <path
                                         d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                                         fill="#E5E7EB" />
@@ -66,7 +69,6 @@
                         <tr>
                             <th scope="col" class="px-6 py-3 font-semibold">№</th>
                             <th scope="col" class="px-6 py-3 font-semibold">Дата операції</th>
-                            <th scope="col" class="px-6 py-3 font-semibold">% ставка</th>
                             <th scope="col" class="px-6 py-3 font-semibold">Операція</th>
                             <th scope="col" class="px-6 py-3 font-semibold">Сума</th>
                             <th scope="col" class="px-6 py-3 font-semibold">Сума в грн.</th>
@@ -79,21 +81,16 @@
                         @foreach ($parsedData as $index => $row)
                             <tr
                                 class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 {{ $index % 2 == 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800' }}">
-                                {{-- Column 0: № (Non-editable) --}}
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap">
-                                    {{ $row[0] ?? '' }} {{-- Добавлено ?? '' для безопасности --}}
+                                    {{ $row[0] ?? '' }}
                                 </td>
 
-                                {{-- Column 1: Дата операції --}}
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap">
                                     @if ($editedRowIndex === $index)
-                                        <div> {{-- Обертка для инпута и ошибки --}}
+                                        <div>
                                             <input type="text" wire:model.defer="editedRowData.1"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.1') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.1')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -103,16 +100,12 @@
                                     @endif
                                 </td>
 
-                                {{-- Column 2: % ставка --}}
-                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
+                                {{-- <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.2"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.2') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.2')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -120,18 +113,14 @@
                                     @else
                                         {{ $row[2] ?? '' }}
                                     @endif
-                                </td>
+                                </td> --}}
 
-                                {{-- Column 3: Операція --}}
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.3"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.3') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.3')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -141,38 +130,29 @@
                                     @endif
                                 </td>
 
-                                {{-- Column 4: Сума --}}
                                 <td
                                     class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap text-right">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.4"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.4') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.4')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
                                         </div>
                                     @else
-                                        {{-- Используем is_numeric для безопасности перед форматированием --}}
                                         {{ isset($row[4]) && is_numeric($row[4]) ? number_format($row[4], 2, ',', ' ') : $row[4] ?? '' }}
                                     @endif
                                 </td>
 
-                                {{-- Column 5: Сума в грн. --}}
                                 <td
                                     class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap text-right">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.5"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.5') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.5')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -182,16 +162,12 @@
                                     @endif
                                 </td>
 
-                                {{-- Column 6: Призначення платежу --}}
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.6"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.6') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.6')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -201,16 +177,12 @@
                                     @endif
                                 </td>
 
-                                {{-- Column 7: Виписка сформована --}}
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-200">
                                     @if ($editedRowIndex === $index)
                                         <div>
                                             <input type="text" wire:model.defer="editedRowData.7"
-                                                {{-- ИЗМЕНЕНО: defer --}}
                                                 class="w-full px-2 py-1 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('editedRowData.7') border-red-500 dark:border-red-400 @enderror">
-                                            {{-- ДОБАВЛЕНО: класс ошибки --}}
                                             @error('editedRowData.7')
-                                                {{-- ДОБАВЛЕНО: Блок ошибки --}}
                                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}
                                                 </p>
                                             @enderror
@@ -220,15 +192,13 @@
                                     @endif
                                 </td>
 
-                                {{-- Column 8: Дії --}}
                                 <td class="px-4 py-2 text-center whitespace-nowrap">
                                     @if ($editedRowIndex === $index)
-                                        <button wire:click="saveRow" wire:loading.attr="disabled" {{-- Блокируем кнопку во время сохранения --}}
+                                        <button wire:click="saveRow" wire:loading.attr="disabled"
                                             class="inline-flex items-center p-1.5 text-green-500 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 mx-1 hover:scale-125 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                                             title="Save">
-                                            {{-- SVG Save icon --}}
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
-                                                fill="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                viewBox="0 0 24 24" fill="currentColor">
                                                 <path
                                                     d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
                                             </svg>
@@ -236,7 +206,6 @@
                                         <button wire:click="cancelEdit" wire:loading.attr="disabled"
                                             class="inline-flex items-center p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mx-1 hover:scale-125 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                                             title="Cancel">
-                                            {{-- SVG Cancel icon --}}
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                 viewBox="0 0 24 24" fill="currentColor">
                                                 <path
@@ -247,7 +216,6 @@
                                         <button wire:click="editRow({{ $index }})"
                                             class="inline-flex items-center p-1.5 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mx-1 hover:scale-125 transition-transform"
                                             title="Edit">
-                                            {{-- SVG Edit icon --}}
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                 viewBox="0 0 24 24" fill="currentColor">
                                                 <path
@@ -261,10 +229,6 @@
                     </tbody>
                 </table>
             </div>
-
         @endif
     </div>
-
-
-
 </div>

@@ -6,13 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
-
-class User extends Authenticatable
+class User extends Authenticatable implements LdapAuthenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use Notifiable, AuthenticatesWithLdap, HasRoles;
+
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +25,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'guid',     // Добавляем поле для LDAP GUID
+        'domain',   // Добавляем поле для домена (если нужно)
     ];
 
     /**
@@ -47,6 +51,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
 
     public function scopeSearchByName($query, $name)
     {

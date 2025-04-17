@@ -30,6 +30,8 @@ class BankStatement extends Component
     private const EXPORTS_DIR = 'app/exports';
     private const TABLES_JSON = 'app/tables.json';
 
+    public $title = 'Депозитна виписка'; // Значение по умолчанию
+
     protected $rules = [
         'pdfFile' => 'required|mimes:pdf|max:2048', // Файл обязателен, только PDF, макс. 2МБ
     ];
@@ -44,6 +46,7 @@ class BankStatement extends Component
     public function mount()
     {
         $this->parsedData = []; // Явно встановлюємо порожній масив
+        $this->title = 'Депозитна виписка';
     }
 
 
@@ -269,6 +272,7 @@ class BankStatement extends Component
         info('Data for Excel export count: ' . count($this->parsedData));
         // *** ДОБАВИТЬ (опционально, для уведомления о начале) ***
         $this->dispatch('notify', message: 'Починається експорт в Excel...', type: 'info');
+
         // Уведомление об успехе не сработает тут из-за return download
         return Excel::download(new BankStatementExport(array_map('array_values', $this->parsedData)), 'bank_statement.xlsx');
     }

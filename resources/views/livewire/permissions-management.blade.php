@@ -1,10 +1,7 @@
 <div>
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Таблиця дозволів') }}</h3>
-        {{-- <button wire:click="createPermission" type="button"
-            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-            {{ __('Створити дозвіл') }}
-        </button> --}}
+
 
        <div class="relative inline-flex group ml-auto">
             <div class="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">

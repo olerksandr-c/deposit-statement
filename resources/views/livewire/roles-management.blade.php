@@ -1,13 +1,31 @@
 <div>
-    <div class="flex justify-between items-center mb-4">
+    {{-- <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Таблиця ролей') }}</h3>
         <button wire:click="openRoleCreateModal" type="button"
             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
             {{ __('Створити роль') }}
         </button>
+    </div> --}}
+
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Таблиця ролей') }}</h3>
+
+        <div class="relative inline-flex group ml-auto">
+            <div class="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                {{ __('Створити роль') }}
+                <div class="absolute top-1/2 left-full -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-0 border-r-4 border-solid border-gray-900 border-t-transparent border-b-transparent"></div>
+            </div>
+            <button wire:click="openRoleCreateModal" type="button"
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                aria-label="{{ __('Створити роль') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+            </button>
+        </div>
     </div>
 
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="relative  shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <!-- Заголовки таблиці (як раніше) -->
             <tbody>
@@ -18,9 +36,21 @@
                             {{ $role->name }}
                         </td>
                         <td class="px-6 py-4">
-                            <!-- Дозволи ролі (як раніше) -->
+                            @if ($role->permissions->isNotEmpty())
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach ($role->permissions as $permission)
+                                        <span
+                                            class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
+                                            {{ $permission->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <span
+                                    class="text-xs italic text-gray-400 dark:text-gray-500">{{ __('Немає дозволів') }}</span>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 space-x-2">
+                        {{-- <td class="px-6 py-4 space-x-2">
                             <button wire:click="editRolePermissions({{ $role->id }})" type="button"
                                 class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">
                                 {{ __('Редагувати дозволи') }}
@@ -30,6 +60,52 @@
                                 onclick="confirm('Ви впевнені?') || event.stopImmediatePropagation()">
                                 {{ __('Видалити') }}
                             </button>
+                        </td> --}}
+
+                        <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
+                            <!-- Кнопка редагування дозволів (карандаш) -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="editRolePermissions({{ $role->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    aria-label="{{ __('Редагувати дозволи') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Редагувати дозволи') }}
+                                    <div
+                                        class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Кнопка перегляду (око) -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="viewRolePermissions({{ $role->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-green-100 dark:hover:bg-green-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    aria-label="{{ __('Переглянути дозволи') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6 text-green-600 dark:text-green-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Переглянути дозволи') }}
+                                    <div
+                                        class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent">
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @empty

@@ -1,40 +1,73 @@
 <div>
     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ __('Таблиця користувачів') }}</h3>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="shadow-md sm:rounded-lg"> <!-- Видалено overflow-x-auto -->
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3">{{ __('Ім\'я користувача') }}</th>
                     <th scope="col" class="px-6 py-3">{{ __('Email') }}</th>
                     <th scope="col" class="px-6 py-3">{{ __('Ролі') }}</th>
-                    <th scope="col" class="px-6 py-3"><span class="sr-only">{{ __('Дії') }}</span></th>
+                    <th scope="col" class="px-6 py-3 text-right">{{ __('Дії') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($users as $user)
-                    <tr
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <th scope="row"
-                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{ $user->name }}
                         </th>
                         <td class="px-6 py-4">{{ $user->email }}</td>
                         <td class="px-6 py-4">
                             @if ($user->roles->isNotEmpty())
-                                {{ $user->roles->pluck('name')->join(', ') }}
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach ($user->roles as $role)
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                            {{ $role->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
                             @else
-                                <span class="text-xs italic text-gray-400">{{ __('Немає ролей') }}</span>
+                                <span class="text-xs italic text-gray-400 dark:text-gray-500">{{ __('Немає ролей') }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                            <button wire:click="editUserRoles({{ $user->id }})" type="button"
-                                class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">
-                                {{ __('Редагувати ролі') }}
-                            </button>
-                            <button wire:click="viewUserEffectivePermissions({{ $user->id }})" type="button"
-                                class="font-medium text-green-600 dark:text-green-500 hover:underline">
-                                {{ __('Переглянути дозволи') }}
-                            </button>
+                        <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap"> <!-- Збільшено space-x-2 до space-x-3 -->
+                            <!-- Кнопка редагування ролей -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="editUserRoles({{ $user->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    aria-label="{{ __('Редагувати ролі') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-6 w-6 text-indigo-600 dark:text-indigo-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Редагувати ролі') }}
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent"></div>
+                                </div>
+                            </div>
+
+                            <!-- Кнопка перегляду дозволів -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="viewUserEffectivePermissions({{ $user->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-green-100 dark:hover:bg-green-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    aria-label="{{ __('Переглянути дозволи') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-6 w-6 text-green-600 dark:text-green-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Переглянути дозволи') }}
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent"></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -135,7 +168,8 @@
                     class="relative inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl dark:bg-gray-800 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                     <div>
                         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100" id="modal-title">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100"
+                                id="modal-title">
                                 {{ __('Ефективні дозволи для') }} {{ $selectedUser->name }}
                             </h3>
                             <div class="mt-4">

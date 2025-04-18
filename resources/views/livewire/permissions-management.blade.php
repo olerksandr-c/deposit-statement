@@ -1,10 +1,24 @@
 <div>
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ __('Таблиця дозволів') }}</h3>
-        <button wire:click="createPermission" type="button"
+        {{-- <button wire:click="createPermission" type="button"
             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
             {{ __('Створити дозвіл') }}
-        </button>
+        </button> --}}
+
+       <div class="relative inline-flex group ml-auto">
+            <div class="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                {{ __('Створити дозвіл') }}
+                <div class="absolute top-1/2 left-full -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-0 border-r-4 border-solid border-gray-900 border-t-transparent border-b-transparent"></div>
+            </div>
+            <button wire:click="createPermission"  type="button"
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                aria-label="{{ __('Створити дозвіл') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -21,7 +35,7 @@
                         <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
                             {{ $permission->name }}
                         </td>
-                        <td class="px-6 py-4 space-x-2">
+                        {{-- <td class="px-6 py-4 space-x-2">
                             <button wire:click="editPermission({{ $permission->id }})" type="button"
                                 class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">
                                 {{ __('Редагувати') }}
@@ -30,6 +44,47 @@
                                 class="font-medium text-red-600 dark:text-red-500 hover:underline">
                                 {{ __('Видалити') }}
                             </button>
+                        </td> --}}
+
+                        <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
+                            <!-- Кнопка редагування (карандаш) -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="editPermission({{ $permission->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    aria-label="{{ __('Редагувати') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-6 w-6 text-indigo-600 dark:text-indigo-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Редагувати') }}
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent"></div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Кнопка видалення (кошик) -->
+                            <div class="relative inline-flex group">
+                                <button wire:click="deletePermission({{ $permission->id }})" type="button"
+                                    class="p-3 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    aria-label="{{ __('Видалити') }}"
+                                    onclick="confirm('{{ __('Ви впевнені?') }}') || event.stopImmediatePropagation()">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-6 w-6 text-red-600 dark:text-red-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                                <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm whitespace-nowrap">
+                                    {{ __('Видалити') }}
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent"></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @empty

@@ -84,7 +84,7 @@
                                 </div>
                             </div>
 
-                            <!-- Кнопка перегляду (око) -->
+                            {{-- <!-- Кнопка перегляду (око) -->
                             <div class="relative inline-flex group">
                                 <button wire:click="viewRolePermissions({{ $role->id }})" type="button"
                                     class="p-3 rounded-lg hover:bg-green-100 dark:hover:bg-green-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -105,7 +105,7 @@
                                         class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-0 border-t-4 border-solid border-gray-900 border-l-transparent border-r-transparent">
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </td>
                     </tr>
                 @empty

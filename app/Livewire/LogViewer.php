@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
+
 class LogViewer extends Component
 {
     use WithPagination;
@@ -20,10 +21,17 @@ class LogViewer extends Component
     public $perPage = 10;  // Кількість записів на сторінці
     public $dateFilter = 'all'; // За замовчуванням: показати всі записи
 
-    protected $queryString = ['userName', 'perPage', 'dateFilter'];
+    public $logType = '';
+
+    protected $queryString = ['userName', 'perPage', 'dateFilter', 'logType'];
 
     // Використовуємо лістенери для відстеження змін
     protected $listeners = ['refresh' => '$refresh'];
+
+    public function updatingLogType()
+    {
+        $this->resetPage();
+    }
 
     // Оновлюємо пагінацію при зміні фільтрів
     public function updatingUserName()
@@ -36,16 +44,27 @@ class LogViewer extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->userName = '';
+        $this->dateFilter = 'all';
+        $this->logType = '';
+        $this->resetPage();
+    }
+
     // Метод для отримання логів з фільтрацією та пагінацією
     public function render()
     {
-
         $user = Auth::user();
-
 
         if (!Auth::user()->hasRole('administrator')) {
             abort(403, 'Доступ заборонено');
         }
+
+
+        // if (!Auth::user()->hasPermissionTo('access-admin-area')) {
+        //     abort(403, 'Доступ заборонено');
+        // }
 
 
 
@@ -53,10 +72,10 @@ class LogViewer extends Component
             ->when(trim($this->userName) !== '', function ($query) {
                 $query->whereHas('user', fn($q) => $q->searchByName($this->userName));
             })
-            // Фільтрація за датою
+            // Filter by date
             ->when($this->dateFilter !== 'all', function ($query) {
+                // Date filter logic remains the same
                 $now = Carbon::now();
-
                 switch ($this->dateFilter) {
                     case 'day':
                         $query->where('created_at', '>=', $now->copy()->subDay());
@@ -72,17 +91,13 @@ class LogViewer extends Component
                         break;
                 }
             })
+            // Add filter by log type
+            ->when(trim($this->logType) !== '', function ($query) {
+                $query->where('log_type', $this->logType);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
-            return view('livewire.log-viewer', compact('logs'))
-            ->layout('layouts.app', [
-                'title' => $this->title // Передаём title в шаблон
-            ]);
-    }
-    // Метод для зміни фільтру за датою
-    public function setDateFilter($filter)
-    {
-        $this->dateFilter = $filter;
+        return view('livewire.log-viewer', compact('logs'));
     }
 }

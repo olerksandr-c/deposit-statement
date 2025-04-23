@@ -33,8 +33,6 @@ class BankStatement extends Component
 
     public $title = 'Депозитна виписка'; // Значение по умолчанию
 
-
-
     protected $rules = [
         'pdfFile' => 'required|mimes:pdf|max:2048', // Файл обязателен, только PDF, макс. 2МБ
     ];
@@ -56,13 +54,7 @@ class BankStatement extends Component
 
     public function render()
     {
-        // info('Rendering component with parsedData: ' . json_encode([
-        //     'empty' => empty($this->parsedData),
-        //     'count' => count($this->parsedData),
-        //     'is_array' => is_array($this->parsedData),
-        // ]));
-
-        return view('livewire.bank-statement');
+       return view('livewire.bank-statement');
     }
 
     public function updatedPdfFile()
@@ -292,10 +284,6 @@ class BankStatement extends Component
     public function saveRow()
     {
 
-
-        // --- НАЧАЛО ИЗМЕНЕНИЙ ---
-
-        // Определите правила валидации ЗДЕСЬ, для конкретных индексов editedRowData
         // Замените ИНДЕКС_КОЛОНКИ_СУММЫ_1 и ИНДЕКС_КОЛОНКИ_СУММЫ_2
         // на реальные числовые индексы ваших колонок с суммами (начиная с 0).
         // Например, если суммы в 3-й и 4-й колонках, используйте '2' и '3'.
@@ -320,11 +308,9 @@ class BankStatement extends Component
         } catch (ValidationException $e) {
             // Валидация не пройдена. Livewire автоматически обработает ошибки
             // и сделает их доступными в $errors в Blade.
-            // Вы можете добавить дополнительное логирование или действия здесь, если нужно.
+
             info('Validation failed for edited row: ' . json_encode($e->errors()));
-            // Не нужно вызывать $this->cancelEdit(), чтобы пользователь мог исправить ошибки
-            // и поля ввода остались видимыми.
-            // Просто позвольте исключению прервать выполнение метода.
+
             throw $e; // Перебрасываем исключение, чтобы Livewire его обработал
         }
     }
@@ -496,8 +482,6 @@ class BankStatement extends Component
 
         // Показываем пользователю сообщение через событие
         $userMessage = "Виникла помилка ({$logPrefix}): " . $exception->getMessage();
-
-
 
         $this->dispatch('notify', message: $userMessage, type: 'error');
     }

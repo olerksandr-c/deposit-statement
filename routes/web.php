@@ -5,6 +5,7 @@ use App\Livewire\BankStatement;
 use App\Livewire\RolePermissionManager;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DbfExportController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -39,6 +40,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('roles-permissions', RolePermissionManager::class)
         ->middleware(['auth', 'verified'])
         ->name('role-permission-manager');
+
+
 });
+
+Route::get('/export-dbf', [DbfExportController::class, 'exportToDBF']);
 
 require __DIR__ . '/auth.php';

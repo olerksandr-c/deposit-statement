@@ -66,8 +66,6 @@ class LogViewer extends Component
         //     abort(403, 'Доступ заборонено');
         // }
 
-
-
         $logs = Log::query()
             ->when(trim($this->userName) !== '', function ($query) {
                 $query->whereHas('user', fn($q) => $q->searchByName($this->userName));

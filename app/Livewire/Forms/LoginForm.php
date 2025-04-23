@@ -102,7 +102,7 @@ class LoginForm extends Form
             Log::create([
                 'user_id' => $user?->id,  // ID пользователя
                 'log_type' => 'info',  // Тип лога
-                'message' => "Локальниу користувач {$this->email} зайшов",  // Сообщение
+                'message' => "Локальний користувач {$this->email} зайшов",  // Сообщение
                 'is_archived' => false,  // Флаг архивирования
             ]);
             return;

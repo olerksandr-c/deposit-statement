@@ -222,56 +222,31 @@ class BankStatement extends Component
     {
         // Проверка существования JSON-файла
         if (!file_exists($jsonPath)) {
-            throw new \Exception("JSON-файл не знайдено або не створено: {$jsonPath}");
+            throw new \Exception("JSON-файл не создан: {$jsonPath}");
         }
 
         // Чтение JSON с таблицами
         $jsonContent = file_get_contents($jsonPath);
-        if ($jsonContent === false) {
-            throw new \Exception("Не вдалося прочитати JSON-файл: {$jsonPath}");
-        }
         if (empty($jsonContent)) {
-             // Если файл пуст, но существует (скрипт мог ничего не извлечь)
-             // info("JSON-файл пустий: {$jsonPath}. Можливо, таблиці не знайдено у PDF.");
-             return []; // Возвращаем пустой массив вместо ошибки
-             // throw new \Exception("JSON-файл пуст: {$jsonPath}");
+            throw new \Exception("JSON-файл пуст: {$jsonPath}");
         }
-
-        // Проверка на BOM (Byte Order Mark), который может мешать json_decode
-        if (substr($jsonContent, 0, 3) === "\xEF\xBB\xBF") {
-            $jsonContent = substr($jsonContent, 3);
-        }
-
 
         // Декодирование JSON
-        $tables = json_decode($jsonContent, true); // true для ассоциативного массива
+        $tables = json_decode($jsonContent, true);
 
-        // Проверка ошибок JSON декодирования
-        $jsonError = json_last_error();
-        if ($jsonError === JSON_ERROR_UTF8) {
-            // КОНКРЕТНАЯ ОШИБКА UTF-8
-            throw new \Exception("Помилка декодування JSON: Некоректні символи UTF-8 у файлі {$jsonPath}. Перевірте кодування вихідного PDF або роботу скрипта вилучення.");
-        } elseif ($jsonError !== JSON_ERROR_NONE) {
-            // Другие ошибки JSON
-            throw new \Exception("Помилка декодування JSON ({$jsonError}): " . json_last_error_msg() . " у файлі {$jsonPath}");
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception("Ошибка при декодировании JSON: " . json_last_error_msg());
         }
 
-        // Проверяем структуру данных (пример)
-        if (!is_array($tables)) {
-            throw new \Exception("Помилка: дані JSON не є масивом після декодування.");
+        // Проверяем, является ли $tables массивом массивов
+        if (isset($tables[0]) && is_array($tables[0])) {
+            // Преобразуем в индексированные массивы
+            $cleanedTables = array_map('array_values', $tables);
+        } else {
+            throw new \Exception("Ошибка: данные не в ожидаемом формате");
         }
 
-        // Если ожидается массив массивов (строк таблицы)
-        if (!empty($tables) && isset($tables[0]) && !is_array($tables[0])) {
-             throw new \Exception("Помилка: дані JSON не в очікуваному форматі масиву масивів.");
-        }
-
-        // Очистка ключей (если они ассоциативные, а нужны индексные)
-        // Этот шаг может быть не нужен, если Python уже возвращает списки списков
-        $cleanedTables = array_map('array_values', $tables);
-
-
-        // info('Tables extracted: ' . count($cleanedTables));
+        // info('Tables extracted: ' . json_encode($cleanedTables));
         return $cleanedTables;
     }
 
@@ -401,35 +376,21 @@ class BankStatement extends Component
      * Создание временного JSON файла с данными
      *
      * @return string Путь к созданному JSON файлу
-     * @throws \Exception При ошибке создания файла или кодирования JSON
+     * @throws \Exception При ошибке создания файла
      */
     protected function createTempJsonFile()
     {
         $tempJsonPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp_dbf_export_' . time() . '.json');
-        try {
-            // Используем флаги для корректной обработки Unicode и явных ошибок
-            $jsonContent = json_encode(
-                $this->parsedData,
-                JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR
-            );
-        } catch (\JsonException $e) {
-            // Ловим конкретную ошибку кодирования JSON
-            $errorMessage = "Не вдалося закодувати дані в JSON: " . $e->getMessage();
-            // Логируем проблемные данные (будьте осторожны с большими объемами)
-            // info($errorMessage . " - Data sample: " . substr(print_r($this->parsedData, true), 0, 500));
-            // Перебрасываем исключение, чтобы оно было обработано handleException
-            throw new \Exception($errorMessage);
-        }
-
-        // Записываем контент в файл
-        if (file_put_contents($tempJsonPath, $jsonContent) === false) {
-            throw new \Exception("Не вдалося записати тимчасовий JSON файл: {$tempJsonPath}");
-        }
-
+        file_put_contents($tempJsonPath, json_encode($this->parsedData));
         // info('Временный JSON файл создан: ' . $tempJsonPath);
+
+        if (!file_exists($tempJsonPath)) {
+            throw new \Exception("Не удалось создать временный JSON файл");
+        }
 
         return $tempJsonPath;
     }
+
     /**
      * Подготовка пути для экспорта DBF файла
      *

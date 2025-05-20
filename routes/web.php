@@ -4,8 +4,9 @@ use App\Http\Controllers\LdapController;
 use App\Livewire\BankStatement;
 use App\Livewire\RolePermissionManager;
 use App\Livewire\UserManagement;
+use App\Livewire\UserSearch;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DbfExportController;
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -41,9 +42,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(['auth', 'verified'])
         ->name('role-permission-manager');
 
-
+    Route::get('user-search', UserSearch::class)
+        ->middleware(['auth', 'verified'])
+        ->name('user-search');
 });
 
-Route::get('/export-dbf', [DbfExportController::class, 'exportToDBF']);
+
 
 require __DIR__ . '/auth.php';

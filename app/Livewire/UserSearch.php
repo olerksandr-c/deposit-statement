@@ -54,12 +54,15 @@ class UserSearch extends Component
         } catch (\Exception $e) {
             $this->connectionError = 'Ошибка поиска: ' . $e->getMessage();
         }
-
+        // dd($this->users);
         $this->loading = false;
     }
 
     public function render()
     {
+        
+        
         return view('livewire.user-search');
+        
     }
 }

@@ -9,7 +9,7 @@ import io
 import datetime
 
 #только для локальной разаработки
-os.environ['JAVA_HOME'] = r'C:\Program Files\Java\jdk-23'
+os.environ['JAVA_HOME'] = r'C:\Program Files\Java\jdk-24'
 
 # Устанавливаем кодировку вывода в UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')

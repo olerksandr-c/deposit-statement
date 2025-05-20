@@ -54,7 +54,7 @@ class BankStatement extends Component
 
     public function render()
     {
-       return view('livewire.bank-statement');
+        return view('livewire.bank-statement');
     }
 
     public function updatedPdfFile()
@@ -117,23 +117,35 @@ class BankStatement extends Component
      */
     protected function executePythonScript($scriptPath, $arguments, $description = 'Выполнение Python-скрипта')
     {
-        // Определяем путь к Python в зависимости от ОС
+        // // Определяем путь к Python в зависимости от ОС
+        // if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        //     // Для Windows
+        //     $pythonPath = 'python';  // Или полный путь, например: 'C:\path\to\venv\Scripts\python.exe'
+
+        //     // Альтернативный вариант поиска Python на Windows:
+        //     if (!file_exists($pythonPath)) {
+        //         $pythonPath = 'py';  // Пробуем стандартный псевдоним Python в Windows
+        //     }
+        // } else {
+        //     // Для Linux
+        //     $pythonPath = base_path('venv/bin/python');
+
+        //     // Проверяем, существует ли venv, если нет - используем системный python3
+        //     if (!file_exists($pythonPath)) {
+        //         $pythonPath = 'python3';
+        //     }
+        // }
+
+        // Определяем путь к виртуальному окружению
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            // Для Windows
-            $pythonPath = 'python';  // Или полный путь, например: 'C:\path\to\venv\Scripts\python.exe'
-
-            // Альтернативный вариант поиска Python на Windows:
-            if (!file_exists($pythonPath)) {
-                $pythonPath = 'py';  // Пробуем стандартный псевдоним Python в Windows
-            }
+            $pythonPath = base_path('venv\\Scripts\\python.exe');
         } else {
-            // Для Linux
             $pythonPath = base_path('venv/bin/python');
+        }
 
-            // Проверяем, существует ли venv, если нет - используем системный python3
-            if (!file_exists($pythonPath)) {
-                $pythonPath = 'python3';
-            }
+        // Если venv не найден, используем системный интерпретатор
+        if (!file_exists($pythonPath)) {
+            $pythonPath = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'python' : 'python3';
         }
 
         // Проверка существования скрипта
@@ -158,8 +170,8 @@ class BankStatement extends Component
         }
 
         // Логирование для отладки
-        // info("Python path: {$pythonPath}");
-        // info("{$description} - Command: {$commandString}");
+        //  info("Python path: {$pythonPath}");
+        //  info("{$description} - Command: {$commandString}");
 
         // Выполнение команды
         $output = [];
@@ -174,7 +186,7 @@ class BankStatement extends Component
         }
 
         // Успешное выполнение
-        // info("{$description} - Скрипт выполнен успешно. Результат: " . implode("\n", $output));
+         info("{$description} - Скрипт выполнен успешно. Результат: " . implode("\n", $output));
 
         return [$output, $returnVar];
     }
@@ -231,10 +243,10 @@ class BankStatement extends Component
             throw new \Exception("Не вдалося прочитати JSON-файл: {$jsonPath}");
         }
         if (empty($jsonContent)) {
-             // Если файл пуст, но существует (скрипт мог ничего не извлечь)
-             // info("JSON-файл пустий: {$jsonPath}. Можливо, таблиці не знайдено у PDF.");
-             return []; // Возвращаем пустой массив вместо ошибки
-             // throw new \Exception("JSON-файл пуст: {$jsonPath}");
+            // Если файл пуст, но существует (скрипт мог ничего не извлечь)
+             info("JSON-файл пустий: {$jsonPath}. Можливо, таблиці не знайдено у PDF.");
+            return []; // Возвращаем пустой массив вместо ошибки
+            // throw new \Exception("JSON-файл пуст: {$jsonPath}");
         }
 
         // Проверка на BOM (Byte Order Mark), который может мешать json_decode
@@ -263,7 +275,7 @@ class BankStatement extends Component
 
         // Если ожидается массив массивов (строк таблицы)
         if (!empty($tables) && isset($tables[0]) && !is_array($tables[0])) {
-             throw new \Exception("Помилка: дані JSON не в очікуваному форматі масиву масивів.");
+            throw new \Exception("Помилка: дані JSON не в очікуваному форматі масиву масивів.");
         }
 
         // Очистка ключей (если они ассоциативные, а нужны индексные)
@@ -284,7 +296,7 @@ class BankStatement extends Component
             // Сообщение об ошибке уже отправляется из checkEmptyData через handleException/notify
             return null;
         }
-        // info('Data for Excel export count: ' . count($this->parsedData));
+        //  info('Data for Excel export count: ' . count($this->parsedData));
         // *** ДОБАВИТЬ (опционально, для уведомления о начале) ***
         $this->dispatch('notify', message: 'Починається експорт в Excel...', type: 'info');
 
@@ -381,12 +393,12 @@ class BankStatement extends Component
 
             $user = Auth::user();
 
-            Log::create([
-                'user_id' => $user?->id,  // ID пользователя
-                'log_type' => 'info',  // Тип лога
-                'message' => 'Виконано експорт dbf',  // Сообщение
-                'is_archived' => false,  // Флаг архивирования
-            ]);
+            // Log::create([
+            //     'user_id' => $user?->id,  // ID пользователя
+            //     'log_type' => 'info',  // Тип лога
+            //     'message' => 'Виконано експорт dbf',  // Сообщение
+            //     'is_archived' => false,  // Флаг архивирования
+            // ]);
 
 
             // Отдаем файл для скачивания
